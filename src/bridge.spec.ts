@@ -14,7 +14,9 @@ import Keyring from '@polkadot/keyring';
 const sendAndWait = (from, tx, nonce = -1) =>
   new Promise(async (resolve, reject) => {
     try {
+      console.log("signing and sending");
       await tx.signAndSend(from, {nonce}, (receipt) => {
+        console.log("receipt", receipt);
         if (receipt.status.isInBlock) {
           resolve(receipt)
         }
@@ -25,7 +27,7 @@ const sendAndWait = (from, tx, nonce = -1) =>
   })
 
 describe('Bridge sdk usage', () => {
-  jest.setTimeout(30000);
+  jest.setTimeout(40000);
 
   const provider = new ApiProvider();
 
@@ -80,12 +82,12 @@ describe('Bridge sdk usage', () => {
     expect(provider.getApi("karura")).toBeDefined();
     expect(provider.getApi("basilisk")).toBeDefined();
 
-    expect((await firstValueFrom(provider.getApi("karura").rpc.system.chain())).toLowerCase()).toEqual("karura");
-    expect((await firstValueFrom(provider.getApi("basilisk").rpc.system.chain())).toLowerCase()).toEqual("basilisk");
+    expect((await firstValueFrom(provider.getApi("karura").rpc.system.chain())).toLowerCase()).toContain("karura");
+    expect((await firstValueFrom(provider.getApi("basilisk").rpc.system.chain())).toLowerCase()).toContain("basilisk");
 
     setTimeout(async () => {
-      expect((await provider.getApiPromise("karura").rpc.system.chain()).toLowerCase()).toEqual("karura");
-      expect((await provider.getApiPromise("basilisk").rpc.system.chain()).toLowerCase()).toEqual("basilisk");
+      expect((await provider.getApiPromise("karura").rpc.system.chain()).toLowerCase()).toContain("karura");
+      expect((await provider.getApiPromise("basilisk").rpc.system.chain()).toLowerCase()).toContain("basilisk");
     }, 1000);
   });
 
