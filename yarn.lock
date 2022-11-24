@@ -4812,7 +4812,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/util-crypto@npm:10.1.13":
+"@polkadot/util-crypto@npm:10.1.13, @polkadot/util-crypto@npm:^10.1.13":
   version: 10.1.13
   resolution: "@polkadot/util-crypto@npm:10.1.13"
   dependencies:
@@ -5559,6 +5559,7 @@ __metadata:
     "@polkadot/keyring": ^10.1.13
     "@polkadot/types": ^8.11.1
     "@polkadot/types-augment": ^8.11.1
+    "@polkadot/util-crypto": ^10.1.13
     "@types/jest": ^28.1.1
     "@types/lodash": ^4.14.161
     axios: ^0.27.2

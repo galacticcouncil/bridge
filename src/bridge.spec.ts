@@ -11,7 +11,7 @@ import { FN } from './types';
 import { BasiliskAdapter } from './adapters/hydradx';
 import Keyring from '@polkadot/keyring';
 
-const sendAndWait = (from, tx, nonce = -1) =>
+const sendAndWait = (from, tx, nonce = 2) =>
   new Promise(async (resolve, reject) => {
     try {
       console.log("signing and sending");
@@ -25,6 +25,10 @@ const sendAndWait = (from, tx, nonce = -1) =>
       reject(e)
     }
   })
+
+function createTransfer(api, {dest, currencyId, amount}) {
+  return api.tx.currencies.transfer([dest, currencyId, amount]);
+}
 
 describe('Bridge sdk usage', () => {
   jest.setTimeout(40000);
@@ -96,14 +100,14 @@ describe('Bridge sdk usage', () => {
     const toChain: ChainName = 'basilisk';
     const token = 'KUSD';
     
-    const keyring = new Keyring({ type: 'sr25519', ss58Format: 2 });
+    const keyring = new Keyring({ type: 'sr25519' });
     const mnemonic = "patrol prevent rhythm predict suggest surprise menu spy budget palm lonely cloth";
-    const pair = keyring.addFromUri(mnemonic, { name: 'cross chain test' }, 'ed25519');
+    const pair = keyring.addFromUri(mnemonic, { name: 'cross chain test' });
 
     const balance = await firstValueFrom(availableAdapters[chain].subscribeTokenBalance(token, pair.address));
 
-    expect(balance.free.toNumber()).toBeGreaterThanOrEqual(0);
-    expect(balance.available.toNumber()).toBeGreaterThanOrEqual(0);
+    expect(balance.free.toNumber()).toBeGreaterThanOrEqual(1);
+    expect(balance.available.toNumber()).toBeGreaterThanOrEqual(1);
 
     const inputConfig = await firstValueFrom(availableAdapters[chain].subscribeInputConfigs({to: toChain, token, address:pair.address, signer: pair.address}));
 
@@ -113,9 +117,12 @@ describe('Bridge sdk usage', () => {
 
     const tx = availableAdapters[chain].createTx({to: toChain, token, amount: FN.fromInner('10000000000', 10), address:pair.address, signer: pair.address});
 
+    console.log(tx.toHex());
+
+    // const tx = createTransfer(availableAdapters.karura.getApi(), {dest: "t6X8qpY26nsi6WDMkhbyaTz6cLtNBt7xfs4H9k94D3kM1Lm", currencyId: "0x0081", amount: 10000000000});
+
     expect(tx.args.length).toBeGreaterThan(1);
 
     const receipt = await sendAndWait(pair, tx);
-    console.log(receipt);
   });
 });

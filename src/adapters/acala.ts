@@ -662,7 +662,7 @@ class BaseAcalaAdapter extends BaseCrossChainAdapter {
 
     return this.wallet
       .subscribeBalance(token, address)
-      .pipe(catchError((_) => zeroResult));
+      .pipe(catchError((e) => { console.error(e); return zeroResult }));
   }
 
   public subscribeMaxInput(

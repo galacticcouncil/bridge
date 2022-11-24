@@ -1,3 +1,11 @@
+# Cross Chain Script
+
+run
+```
+npx tsx transfer.ts
+```
+for the example transfer
+
 # Polkadot bridge SDK
 
 Polkadot bridge SDK for multi-chain cross-chain token transfer.

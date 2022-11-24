@@ -19,7 +19,7 @@
     "build": "tsc",
     "test": "jest",
     "lint": "polkadot-dev-run-lint",
-    "build:release": "polkadot-ci-ghact-build"
+    "build:release": "polkadot-ci-ghact-build",
   },
   "peerDependencies": {
     "@polkadot/api": ">8"
@@ -33,6 +33,7 @@
     "@polkadot/keyring": "^10.1.13",
     "@polkadot/types": "^8.11.1",
     "@polkadot/types-augment": "^8.11.1",
+    "@polkadot/util-crypto": "^10.1.13",
     "axios": "^0.27.2",
     "lodash": "^4.17.20"
   },

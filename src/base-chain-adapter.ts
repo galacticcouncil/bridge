@@ -62,6 +62,10 @@ export abstract class BaseCrossChainAdapter {
     await api.isReady;
   }
 
+  public getApi() {
+    return this.api;
+  }
+
   public injectFindAdapter(
     func: (chain: ChainName | Chain) => BaseCrossChainAdapter
   ): void {
