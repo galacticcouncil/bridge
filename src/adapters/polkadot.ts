@@ -50,6 +50,24 @@ export const kusamaRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     },
   },
 ];
+export const rococoRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
+  {
+    to: "karura",
+    token: "ROC",
+    xcm: {
+      fee: { token: "ROC", amount: "64000000" },
+      weightLimit: "Unlimited",
+    },
+  },
+  {
+    to: "basilisk",
+    token: "ROC",
+    xcm: {
+      fee: { token: "ROC", amount: "51618187" },
+      weightLimit: "Unlimited",
+    },
+  },
+];
 
 const polkadotTokensConfig: Record<string, Record<string, BasicToken>> = {
   polkadot: {
@@ -57,6 +75,9 @@ const polkadotTokensConfig: Record<string, Record<string, BasicToken>> = {
   },
   kusama: {
     KSM: { name: "KSM", symbol: "KSM", decimals: 12, ed: "79999999" },
+  },
+  rococo: {
+    ROC: { name: "ROC", symbol: "ROC", decimals: 12, ed: "10000000000" },
   },
 };
 
@@ -255,5 +276,11 @@ export class PolkadotAdapter extends BasePolkadotAdapter {
 export class KusamaAdapter extends BasePolkadotAdapter {
   constructor() {
     super(chains.kusama, kusamaRoutersConfig, polkadotTokensConfig.kusama);
+  }
+}
+
+export class RococoAdapter extends BasePolkadotAdapter {
+  constructor() {
+    super(chains.rococo, rococoRoutersConfig, polkadotTokensConfig.rococo);
   }
 }
