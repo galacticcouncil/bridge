@@ -15,13 +15,14 @@ const sendAndWait = (from, tx, nonce = -1) =>
   new Promise(async (resolve, reject) => {
     try {
       console.log("signing and sending");
-      await tx.signAndSend(from, {nonce}, (receipt) => {
+       tx.signAndSend(from, {nonce}, (receipt) => {
         console.log("receipt", receipt);
         if (receipt.status.isInBlock) {
           resolve(receipt)
         }
       })
     } catch (e) {
+      console.log(e);
       reject(e)
     }
   })
@@ -96,14 +97,14 @@ describe('Bridge sdk usage', () => {
     const toChain: ChainName = 'basilisk';
     const token = 'KUSD';
     
-    const keyring = new Keyring({ type: 'sr25519', ss58Format: 2 });
+    const keyring = new Keyring({ type: 'sr25519' });
     const mnemonic = "patrol prevent rhythm predict suggest surprise menu spy budget palm lonely cloth";
-    const pair = keyring.addFromUri(mnemonic, { name: 'cross chain test' }, 'ed25519');
+    const pair = keyring.addFromUri(mnemonic, { name: 'cross chain test' });
 
     const balance = await firstValueFrom(availableAdapters[chain].subscribeTokenBalance(token, pair.address));
 
-    expect(balance.free.toNumber()).toBeGreaterThanOrEqual(0);
-    expect(balance.available.toNumber()).toBeGreaterThanOrEqual(0);
+    expect(balance.free.toNumber()).toBeGreaterThanOrEqual(1);
+    expect(balance.available.toNumber()).toBeGreaterThanOrEqual(1);
 
     const inputConfig = await firstValueFrom(availableAdapters[chain].subscribeInputConfigs({to: toChain, token, address:pair.address, signer: pair.address}));
 
@@ -114,6 +115,8 @@ describe('Bridge sdk usage', () => {
     const tx = availableAdapters[chain].createTx({to: toChain, token, amount: FN.fromInner('10000000000', 10), address:pair.address, signer: pair.address});
 
     expect(tx.args.length).toBeGreaterThan(1);
+    
+    console.log(inputConfig);
 
     const receipt = await sendAndWait(pair, tx);
     console.log(receipt);
