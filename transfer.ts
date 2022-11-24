@@ -29,6 +29,12 @@ async function main() {
   
   const keyring = new Keyring({ type: 'sr25519' });
   const mnemonic = "patrol prevent rhythm predict suggest surprise menu spy budget palm lonely cloth";
+//   subkey inspect --network karura "patrol prevent rhythm predict suggest surprise menu spy budget palm lonely cloth"
+// Secret phrase `patrol prevent rhythm predict suggest surprise menu spy budget palm lonely cloth` is account:
+//   Secret seed:      0x031f0f8eb05545295aec6475e8ce1316b1f5100198a7a630ad59ac58728068b4
+//   Public key (hex): 0x2af3ee8f5c0618b5a227a0805e944f795ae2eb7abf2546a3b621ea0477b0642d
+//   Account ID:       0x2af3ee8f5c0618b5a227a0805e944f795ae2eb7abf2546a3b621ea0477b0642d
+//   SS58 Address:     pGbYS566bxxN9r7K8Tr9iPEvfJXA3Nz8XvEziJGHkWVATXZ
   const pair = keyring.addFromUri(mnemonic, { name: 'cross chain test' });
 
   const availableAdapters = {
