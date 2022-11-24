@@ -60,10 +60,17 @@ export const basiliskTokensConfig: Record<string, BasicToken> = {
   KSM: { name: "KSM", symbol: "KSM", decimals: 12, ed: "100000000" },
 };
 
+// const SUPPORTED_TOKENS: Record<string, number> = {
+//   BSX: 0,
+//   KUSD: 2,
+//   KSM: 1,
+// };
+
+// Rococo config
 const SUPPORTED_TOKENS: Record<string, number> = {
   BSX: 0,
-  KUSD: 2,
-  KSM: 1,
+  KUSD: 4,
+  KSM: 5,
 };
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types

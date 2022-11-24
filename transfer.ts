@@ -11,6 +11,7 @@ import { FN } from './src/types';
 import { BasiliskAdapter } from './src/adapters/hydradx';
 import Keyring from '@polkadot/keyring';
 import {cryptoWaitReady} from '@polkadot/util-crypto';
+import { ApiRx } from '@polkadot/api';
 
 function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -22,9 +23,9 @@ async function main() {
 
   const provider = new ApiProvider();
 
-  const chain = 'rococo';
+  const chain = 'karura';
   const toChain = 'basilisk';
-  const token = 'ROC';
+  const token = 'KUSD';
   
   const keyring = new Keyring({ type: 'sr25519' });
   const mnemonic = "patrol prevent rhythm predict suggest surprise menu spy budget palm lonely cloth";
@@ -63,16 +64,29 @@ async function main() {
   await Promise.all(chains.map((chain) => availableAdapters[chain].setApi(provider.getApi(chain))));
 
   const balance = await firstValueFrom(availableAdapters[chain].subscribeTokenBalance(token, pair.address));
+  console.log("from balance:", balance.free.toNumber());
+  const toBalance = await firstValueFrom(availableAdapters[toChain].subscribeTokenBalance(token, pair.address));
+  console.log("dest balance before:", toBalance.free.toNumber());
 
-  console.log("balance:", balance.free.toNumber());
-
-  const tx = availableAdapters[chain].createTx({ to: toChain, token, amount: FN.fromInner('10000000000', 10), address: pair.address, signer: pair.address });
+  const tx = availableAdapters[chain].createTx({ to: toChain, token, amount: FN.fromInner('1000000000000', 10), address: pair.address, signer: pair.address });
 
   const o = tx.signAndSend(pair);
   o.subscribe({
-    next: receipt => {
-      if (receipt.status.isInBlock) {
+    next: async receipt => {
+      const { status } = receipt;
+      if (status.isInBlock) {
         console.log("inBlock!");
+        const inBlock = status.asInBlock;
+        // console.log(inBlock);
+        const api = availableAdapters[chain].getApi();
+        if (api && api instanceof ApiRx) {
+          const apiAt = await api.at(inBlock);
+          const allRecords = await firstValueFrom(apiAt.query.system.events());
+          
+
+          // const toBalance = await firstValueFrom(availableAdapters[toChain].subscribeTokenBalance(token, pair.address));
+          // console.log("dest balance afterwards:", toBalance.free.toNumber());
+        }
       }
     },
     error: err => console.error('Observer got an error: ', err),
