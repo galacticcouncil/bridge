@@ -15,13 +15,14 @@ const sendAndWait = (from, tx, nonce = 2) =>
   new Promise(async (resolve, reject) => {
     try {
       console.log("signing and sending");
-      await tx.signAndSend(from, {nonce}, (receipt) => {
+       tx.signAndSend(from, {nonce}, (receipt) => {
         console.log("receipt", receipt);
         if (receipt.status.isInBlock) {
           resolve(receipt)
         }
       })
     } catch (e) {
+      console.log(e);
       reject(e)
     }
   })
@@ -122,6 +123,8 @@ describe('Bridge sdk usage', () => {
     // const tx = createTransfer(availableAdapters.karura.getApi(), {dest: "t6X8qpY26nsi6WDMkhbyaTz6cLtNBt7xfs4H9k94D3kM1Lm", currencyId: "0x0081", amount: 10000000000});
 
     expect(tx.args.length).toBeGreaterThan(1);
+    
+    console.log(inputConfig);
 
     const receipt = await sendAndWait(pair, tx);
   });

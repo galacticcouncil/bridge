@@ -16,7 +16,7 @@ describe.skip('api-provider', () => {
 
     const res = await firstValueFrom(
       provider.connectFromChain(chains, {
-        karura: ['wss://karura.polkawallet.io']
+        karura: ['wss://karura-rococo-rpc.aca-staging.network/ws']
       })
     );
 
