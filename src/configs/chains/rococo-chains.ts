@@ -7,7 +7,7 @@ export const rococoChains = {
     id: "rococo",
     display: "Rococo",
     type: typeSubstrate,
-    icon: undefined,
+    icon: "",
     paraChainId: -1,
     ss58Prefix: 42,
   },

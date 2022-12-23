@@ -105,8 +105,8 @@ export abstract class BaseCrossChainAdapter {
     }).pipe(
       map(({ estimateFee, maxInput, minInput }) => {
         return {
-          minInput,
-          maxInput,
+          minInput: minInput.max(FN.ZERO),
+          maxInput: maxInput.max(FN.ZERO),
           ss58Prefix: chains[to].ss58Prefix,
           destFee,
           estimateFee,
