@@ -16,8 +16,80 @@ import {
   CrossChainRouterConfigs,
   CrossChainTransferParams,
 } from "../types";
+import { isChainEqual } from "src/utils/is-chain-equal";
 
 const DEST_WEIGHT = "5000000000";
+
+export const hydradxRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
+  {
+    to: "polkadot",
+    token: "DOT",
+    xcm: {
+      fee: { token: "DOT", amount: "0" },
+      weightLimit: DEST_WEIGHT,
+    },
+  },
+  {
+    to: "acala",
+    token: "DAI",
+    xcm: {
+      fee: { token: "DAI", amount: "0" },
+      weightLimit: DEST_WEIGHT,
+    },
+  },
+  {
+    to: "acala",
+    token: "WBTC",
+    xcm: {
+      fee: { token: "WBTC", amount: "0" },
+      weightLimit: DEST_WEIGHT,
+    },
+  },
+  {
+    to: "acala",
+    token: "WETH",
+    xcm: {
+      fee: { token: "WETH", amount: "0" },
+      weightLimit: DEST_WEIGHT,
+    },
+  },
+  {
+    to: "acala",
+    token: "USDC",
+    xcm: {
+      fee: { token: "USDC", amount: "0" },
+      weightLimit: DEST_WEIGHT,
+    },
+  },
+];
+
+export const hydradxTokensConfig: Record<string, BasicToken> = {
+  HDX: { name: "HDX", symbol: "HDX", decimals: 12, ed: "1000000000000" },
+  DOT: { name: "DOT", symbol: "DOT", decimals: 10, ed: "17540000" },
+  DAI: { name: "DAI", symbol: "DAI", decimals: 18, ed: "10000000000" },
+  USDC: {
+    name: "USDC",
+    symbol: "USDC",
+    decimals: 6,
+    ed: "10000",
+  },
+  WBTC: { name: "WBTC", symbol: "WBTC", decimals: 8, ed: "10" },
+  WETH: {
+    name: "WETH",
+    symbol: "WETH",
+    decimals: 18,
+    ed: "7000000000000",
+  },
+};
+
+const HYDRADX_SUPPORTED_TOKENS: Record<string, number> = {
+  HDX: 0,
+  DOT: 5,
+  DAI: 2,
+  USDC: 7,
+  WBTC: 3,
+  WETH: 4,
+};
 
 export const basiliskRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
   {
@@ -60,17 +132,10 @@ export const basiliskTokensConfig: Record<string, BasicToken> = {
   KSM: { name: "KSM", symbol: "KSM", decimals: 12, ed: "100000000" },
 };
 
-// const SUPPORTED_TOKENS: Record<string, number> = {
-//   BSX: 0,
-//   KUSD: 2,
-//   KSM: 1,
-// };
-
-// Rococo config
-const SUPPORTED_TOKENS: Record<string, number> = {
+const BASILISK_SUPPORTED_TOKENS: Record<string, number> = {
   BSX: 0,
-  KUSD: 4,
-  KSM: 5,
+  KUSD: 2,
+  KSM: 1,
 };
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -122,7 +187,12 @@ class HydradxBalanceAdapter extends BalanceAdapter {
       );
     }
 
-    const tokenId = SUPPORTED_TOKENS[token];
+    let tokenId;
+    if (this.chain === "basilisk") {
+      tokenId = BASILISK_SUPPORTED_TOKENS[token];
+    } else if (this.chain === "hydradx") {
+      tokenId = HYDRADX_SUPPORTED_TOKENS[token];
+    }
 
     if (tokenId === undefined) {
       throw new CurrencyNotFound(token);
@@ -222,7 +292,12 @@ class BaseHydradxAdapter extends BaseCrossChainAdapter {
 
     const { address, amount, to, token } = params;
 
-    const tokenId = SUPPORTED_TOKENS[token];
+    let tokenId;
+    if (isChainEqual(super.chain, "basilisk")) {
+      tokenId = BASILISK_SUPPORTED_TOKENS[token];
+    } else if (isChainEqual(super.chain, "hydradx")) {
+      tokenId = HYDRADX_SUPPORTED_TOKENS[token];
+    }
 
     if (tokenId === undefined) {
       throw new CurrencyNotFound(token);
@@ -230,26 +305,38 @@ class BaseHydradxAdapter extends BaseCrossChainAdapter {
 
     const toChain = chains[to];
     const accountId = this.api?.createType("AccountId32", address).toHex();
-    const dst = {
+
+    // to parachains
+    let dst: any = {
       parents: 1,
-      interior:
-        to === "kusama" || to === "polkadot"
-          ? { X1: { AccountId32: { id: accountId, network: "Any" } } }
-          : {
-              X2: [
-                { Parachain: toChain.paraChainId },
-                { AccountId32: { id: accountId, network: "Any" } },
-              ],
-            },
+      interior: {
+        X2: [
+          { Parachain: toChain.paraChainId },
+          { AccountId32: { id: accountId, network: "Any" } },
+        ],
+      },
     };
+
+    // to relay-chain
+    if (isChainEqual(toChain, "kusama") || isChainEqual(toChain, "polkadot")) {
+      dst = {
+        interior: { X1: { AccountId32: { id: accountId, network: "Any" } } },
+        parents: 1,
+      };
+    }
 
     return this.api?.tx.xTokens.transfer(
       tokenId,
       amount.toChainData(),
       { V1: dst },
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.getDestWeight(token, to)!.toString()
+      this.getDestWeight(token, to)?.toString() || "undefined"
     );
+  }
+}
+
+export class HydradxAdapter extends BaseHydradxAdapter {
+  constructor() {
+    super(chains.hydradx, hydradxRoutersConfig, hydradxTokensConfig);
   }
 }
 

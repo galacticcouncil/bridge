@@ -37,6 +37,46 @@ export const acalaRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     },
   },
   {
+    to: "hydradx",
+    token: "DAI",
+    xcm: {
+      fee: { token: "DAI", amount: "0" },
+      weightLimit: ACALA_DEST_WEIGHT,
+    },
+  },
+  {
+    to: "hydradx",
+    token: "DOT",
+    xcm: {
+      fee: { token: "DOT", amount: "0" },
+      weightLimit: ACALA_DEST_WEIGHT,
+    },
+  },
+  {
+    to: "hydradx",
+    token: "USDC",
+    xcm: {
+      fee: { token: "USDC", amount: "0" },
+      weightLimit: ACALA_DEST_WEIGHT,
+    },
+  },
+  {
+    to: "hydradx",
+    token: "WETH",
+    xcm: {
+      fee: { token: "WETH", amount: "" },
+      weightLimit: ACALA_DEST_WEIGHT,
+    },
+  },
+  {
+    to: "hydradx",
+    token: "WBTC",
+    xcm: {
+      fee: { token: "WBTC", amount: "0" },
+      weightLimit: ACALA_DEST_WEIGHT,
+    },
+  },
+  {
     to: "moonbeam",
     token: "GLMR",
     xcm: {
@@ -577,6 +617,20 @@ export const acalaTokensConfig: Record<string, BasicToken> = {
     ed: "100000000000000000",
   },
   DOT: { name: "DOT", symbol: "DOT", decimals: 10, ed: "100000000" },
+  DAI: { name: "DAI", symbol: "DAI", decimals: 18, ed: "10000000000000000" },
+  USDC: {
+    name: "USDC",
+    symbol: "USDCet",
+    decimals: 6,
+    ed: "10000",
+  },
+  WBTC: { name: "WBTC", symbol: "WBTC", decimals: 8, ed: "60" },
+  WETH: {
+    name: "WETH",
+    symbol: "WETH",
+    decimals: 18,
+    ed: "8500000000000",
+  },
 };
 
 export const karuraTokensConfig: Record<string, BasicToken> = {
@@ -669,9 +723,12 @@ class BaseAcalaAdapter extends BaseCrossChainAdapter {
       })
     );
 
-    return this.wallet
-      .subscribeBalance(token, address)
-      .pipe(catchError((e) => { console.error(e); return zeroResult }));
+    return this.wallet.subscribeBalance(token, address).pipe(
+      catchError((e) => {
+        console.error(e);
+        return zeroResult;
+      })
+    );
   }
 
   public subscribeMaxInput(

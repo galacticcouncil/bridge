@@ -23,6 +23,11 @@ export const polkadotRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     token: "DOT",
     xcm: { fee: { token: "DOT", amount: "3549633" }, weightLimit: "Unlimited" },
   },
+  {
+    to: "hydradx",
+    token: "DOT",
+    xcm: { fee: { token: "DOT", amount: "0" }, weightLimit: "Unlimited" },
+  },
 ];
 export const kusamaRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
   {
