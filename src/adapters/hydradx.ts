@@ -16,7 +16,7 @@ import {
   CrossChainRouterConfigs,
   CrossChainTransferParams,
 } from "../types";
-import { isChainEqual } from "src/utils/is-chain-equal";
+import { isChainEqual } from "../utils/is-chain-equal";
 
 const DEST_WEIGHT = "5000000000";
 
@@ -129,6 +129,7 @@ export const basiliskRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
 export const basiliskTokensConfig: Record<string, BasicToken> = {
   BSX: { name: "BSX", symbol: "BSX", decimals: 12, ed: "1000000000000" },
   KUSD: { name: "KUSD", symbol: "KUSD", decimals: 12, ed: "10000000000" },
+  aUSD: { name: "aUSD", symbol: "aUSD", decimals: 12, ed: "10000000000" },
   KSM: { name: "KSM", symbol: "KSM", decimals: 12, ed: "100000000" },
 };
 
@@ -136,6 +137,7 @@ const BASILISK_SUPPORTED_TOKENS: Record<string, number> = {
   BSX: 0,
   KUSD: 2,
   KSM: 1,
+  aUSD: 4,
 };
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types

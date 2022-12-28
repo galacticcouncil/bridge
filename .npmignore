@@ -1,0 +1,12 @@
+.*
+.*.json
+esbuild.mjs                               
+jest.config.mjs
+tsconfig.json
+tsconfig.build.json
+babel.config.js
+test
+demo
+coverage
+badges
+src
