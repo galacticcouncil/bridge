@@ -1,5 +1,6 @@
-import { Wallet } from "@acala-network/sdk/wallet";
+import { Wallet, WalletConfigs } from "@acala-network/sdk/wallet";
 import { AnyApi, FixedPointNumber } from "@acala-network/sdk-core";
+import { EvmRpcProvider } from "@acala-network/eth-providers";
 import {
   catchError,
   combineLatest,
@@ -54,14 +55,6 @@ export const acalaRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
   },
   {
     to: "hydradx",
-    token: "USDC",
-    xcm: {
-      fee: { token: "USDC", amount: "0" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "hydradx",
     token: "WETH",
     xcm: {
       fee: { token: "WETH", amount: "" },
@@ -72,7 +65,7 @@ export const acalaRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     to: "hydradx",
     token: "WBTC",
     xcm: {
-      fee: { token: "WBTC", amount: "0" },
+      fee: { token: "WBTC", amount: "" },
       weightLimit: ACALA_DEST_WEIGHT,
     },
   },
@@ -618,12 +611,6 @@ export const acalaTokensConfig: Record<string, BasicToken> = {
   },
   DOT: { name: "DOT", symbol: "DOT", decimals: 10, ed: "100000000" },
   DAI: { name: "DAI", symbol: "DAI", decimals: 18, ed: "10000000000000000" },
-  USDC: {
-    name: "USDC",
-    symbol: "USDCet",
-    decimals: 6,
-    ed: "10000",
-  },
   WBTC: { name: "WBTC", symbol: "WBTC", decimals: 8, ed: "60" },
   WETH: {
     name: "WETH",
@@ -674,6 +661,7 @@ export const karuraTokensConfig: Record<string, BasicToken> = {
 
 class BaseAcalaAdapter extends BaseCrossChainAdapter {
   private wallet?: Wallet;
+  protected evmEndpoint?: string | string[];
 
   public override async setApi(api: AnyApi) {
     this.api = api;
@@ -684,7 +672,11 @@ class BaseAcalaAdapter extends BaseCrossChainAdapter {
 
     await api.isReady;
 
-    this.wallet = new Wallet(api);
+    this.wallet = new Wallet(api, {
+      evmProvider: this.evmEndpoint
+        ? new EvmRpcProvider(this.evmEndpoint)
+        : null,
+    } as WalletConfigs);
 
     await this.wallet.isReady;
   }
@@ -871,8 +863,9 @@ class BaseAcalaAdapter extends BaseCrossChainAdapter {
 }
 
 export class AcalaAdapter extends BaseAcalaAdapter {
-  constructor() {
+  constructor(evmEndpoint?: string | string[]) {
     super(chains.acala, acalaRoutersConfig, acalaTokensConfig);
+    this.evmEndpoint = evmEndpoint;
   }
 }
 
