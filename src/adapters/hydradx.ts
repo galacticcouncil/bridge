@@ -25,7 +25,7 @@ export const hydradxRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     to: "polkadot",
     token: "DOT",
     xcm: {
-      fee: { token: "DOT", amount: "0" },
+      fee: { token: "DOT", amount: "469417452" },
       weightLimit: DEST_WEIGHT,
     },
   },
@@ -34,6 +34,14 @@ export const hydradxRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     token: "DAI",
     xcm: {
       fee: { token: "DAI", amount: "0" },
+      weightLimit: DEST_WEIGHT,
+    },
+  },
+  {
+    to: "acala",
+    token: "DOT",
+    xcm: {
+      fee: { token: "DOT", amount: "0" },
       weightLimit: DEST_WEIGHT,
     },
   },
@@ -53,26 +61,12 @@ export const hydradxRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
       weightLimit: DEST_WEIGHT,
     },
   },
-  {
-    to: "acala",
-    token: "USDC",
-    xcm: {
-      fee: { token: "USDC", amount: "0" },
-      weightLimit: DEST_WEIGHT,
-    },
-  },
 ];
 
 export const hydradxTokensConfig: Record<string, BasicToken> = {
   HDX: { name: "HDX", symbol: "HDX", decimals: 12, ed: "1000000000000" },
   DOT: { name: "DOT", symbol: "DOT", decimals: 10, ed: "17540000" },
   DAI: { name: "DAI", symbol: "DAI", decimals: 18, ed: "10000000000" },
-  USDC: {
-    name: "USDC",
-    symbol: "USDC",
-    decimals: 6,
-    ed: "10000",
-  },
   WBTC: { name: "WBTC", symbol: "WBTC", decimals: 8, ed: "10" },
   WETH: {
     name: "WETH",
@@ -86,7 +80,6 @@ const HYDRADX_SUPPORTED_TOKENS: Record<string, number> = {
   HDX: 0,
   DOT: 5,
   DAI: 2,
-  USDC: 7,
   WBTC: 3,
   WETH: 4,
 };
@@ -137,7 +130,16 @@ const BASILISK_SUPPORTED_TOKENS: Record<string, number> = {
   BSX: 0,
   KUSD: 2,
   KSM: 1,
-  aUSD: 4,
+};
+
+const tokensConfig: Record<string, Record<string, BasicToken>> = {
+  hydradx: hydradxTokensConfig,
+  basilisk: basiliskTokensConfig,
+};
+
+const supportedTokens: Record<string, Record<string, number>> = {
+  hydradx: HYDRADX_SUPPORTED_TOKENS,
+  basilisk: BASILISK_SUPPORTED_TOKENS,
 };
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -189,13 +191,8 @@ class HydradxBalanceAdapter extends BalanceAdapter {
       );
     }
 
-    let tokenId;
-    if (this.chain === "basilisk") {
-      tokenId = BASILISK_SUPPORTED_TOKENS[token];
-    } else if (this.chain === "hydradx") {
-      tokenId = HYDRADX_SUPPORTED_TOKENS[token];
-    }
-
+    const tokens = supportedTokens[this.chain];
+    const tokenId = tokens[token];
     if (tokenId === undefined) {
       throw new CurrencyNotFound(token);
     }
@@ -226,10 +223,11 @@ class BaseHydradxAdapter extends BaseCrossChainAdapter {
 
     await api.isReady;
 
+    const chain = this.chain.id as ChainName;
     this.balanceAdapter = new HydradxBalanceAdapter({
-      chain: this.chain.id as ChainName,
+      chain: chain,
       api,
-      tokens: basiliskTokensConfig,
+      tokens: tokensConfig[chain],
     });
   }
 
@@ -240,7 +238,6 @@ class BaseHydradxAdapter extends BaseCrossChainAdapter {
     if (!this.balanceAdapter) {
       throw new ApiNotFound(this.chain.id);
     }
-
     return this.balanceAdapter.subscribeBalance(token, address);
   }
 
@@ -294,13 +291,8 @@ class BaseHydradxAdapter extends BaseCrossChainAdapter {
 
     const { address, amount, to, token } = params;
 
-    let tokenId;
-    if (isChainEqual(super.chain, "basilisk")) {
-      tokenId = BASILISK_SUPPORTED_TOKENS[token];
-    } else if (isChainEqual(super.chain, "hydradx")) {
-      tokenId = HYDRADX_SUPPORTED_TOKENS[token];
-    }
-
+    const tokens = supportedTokens[this.chain.id];
+    const tokenId = tokens[token];
     if (tokenId === undefined) {
       throw new CurrencyNotFound(token);
     }
