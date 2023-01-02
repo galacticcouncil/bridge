@@ -49,7 +49,7 @@ export const acalaRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     to: "hydradx",
     token: "DOT",
     xcm: {
-      fee: { token: "DOT", amount: "0" },
+      fee: { token: "DOT", amount: "491129243" },
       weightLimit: ACALA_DEST_WEIGHT,
     },
   },
