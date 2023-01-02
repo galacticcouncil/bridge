@@ -33,7 +33,7 @@ export const hydradxRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     to: "acala",
     token: "DAI",
     xcm: {
-      fee: { token: "DAI", amount: "0" },
+      fee: { token: "DAI", amount: "926960000000000" },
       weightLimit: DEST_WEIGHT,
     },
   },
@@ -45,43 +45,18 @@ export const hydradxRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
       weightLimit: DEST_WEIGHT,
     },
   },
-  {
-    to: "acala",
-    token: "WBTC",
-    xcm: {
-      fee: { token: "WBTC", amount: "0" },
-      weightLimit: DEST_WEIGHT,
-    },
-  },
-  {
-    to: "acala",
-    token: "WETH",
-    xcm: {
-      fee: { token: "WETH", amount: "0" },
-      weightLimit: DEST_WEIGHT,
-    },
-  },
 ];
 
 export const hydradxTokensConfig: Record<string, BasicToken> = {
   HDX: { name: "HDX", symbol: "HDX", decimals: 12, ed: "1000000000000" },
   DOT: { name: "DOT", symbol: "DOT", decimals: 10, ed: "17540000" },
   DAI: { name: "DAI", symbol: "DAI", decimals: 18, ed: "10000000000" },
-  WBTC: { name: "WBTC", symbol: "WBTC", decimals: 8, ed: "10" },
-  WETH: {
-    name: "WETH",
-    symbol: "WETH",
-    decimals: 18,
-    ed: "7000000000000",
-  },
 };
 
 const HYDRADX_SUPPORTED_TOKENS: Record<string, number> = {
   HDX: 0,
-  DOT: 5,
   DAI: 2,
-  WBTC: 3,
-  WETH: 4,
+  DOT: 5,
 };
 
 export const basiliskRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [

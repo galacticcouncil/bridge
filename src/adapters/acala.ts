@@ -41,7 +41,7 @@ export const acalaRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     to: "hydradx",
     token: "DAI",
     xcm: {
-      fee: { token: "DAI", amount: "0" },
+      fee: { token: "DAI", amount: "12375721330000000" },
       weightLimit: ACALA_DEST_WEIGHT,
     },
   },
@@ -50,22 +50,6 @@ export const acalaRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     token: "DOT",
     xcm: {
       fee: { token: "DOT", amount: "491129243" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "hydradx",
-    token: "WETH",
-    xcm: {
-      fee: { token: "WETH", amount: "" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "hydradx",
-    token: "WBTC",
-    xcm: {
-      fee: { token: "WBTC", amount: "" },
       weightLimit: ACALA_DEST_WEIGHT,
     },
   },
@@ -611,13 +595,6 @@ export const acalaTokensConfig: Record<string, BasicToken> = {
   },
   DOT: { name: "DOT", symbol: "DOT", decimals: 10, ed: "100000000" },
   DAI: { name: "DAI", symbol: "DAI", decimals: 18, ed: "10000000000000000" },
-  WBTC: { name: "WBTC", symbol: "WBTC", decimals: 8, ed: "60" },
-  WETH: {
-    name: "WETH",
-    symbol: "WETH",
-    decimals: 18,
-    ed: "8500000000000",
-  },
 };
 
 export const karuraTokensConfig: Record<string, BasicToken> = {
