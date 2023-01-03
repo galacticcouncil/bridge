@@ -2,8 +2,8 @@
   "name": "@galacticcouncil/bridge",
   "version": "0.0.1-rc18",
   "description": "polkawallet bridge sdk v0.0.5-10",
-  "main": "build/index.js",
-  "types": "build/types.d.ts",
+  "main": "index.js",
+  "types": "index.d.ts",
   "author": "Polkawallet developers <hello@polkawallet.io>",
   "license": "Apache-2.0",
   "engines": {
@@ -23,14 +23,10 @@
     "build:release": "polkadot-ci-ghact-build"
   },
   "peerDependencies": {
-    "@polkadot/api": "9.9.1"
+    "@polkadot/api": ">9"
   },
   "resolutions": {
-    "rxjs": "^7.5.7",
-    "@polkadot/rpc-core": "^9.10.5",
-    "@polkadot/rpc-augment": "^9.10.5",
-    "@polkadot/util": "^10.2.1",
-    "@polkadot/util-crypto": "^10.2.1"
+    "rxjs": "^7.5.7"
   },
   "dependencies": {
     "@acala-network/api": "4.1.8-9",
@@ -54,10 +50,6 @@
     "jest": "^28.1.1",
     "ts-jest": "^28.0.8",
     "typescript": "^4.7.4"
-  },
-  "versions": {
-    "git": "0.0.5-4",
-    "npm": "0.0.5-4"
   },
   "stableVersion": "0.0.5-9"
 }
