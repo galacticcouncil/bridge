@@ -1,6 +1,6 @@
 {
   "name": "@galacticcouncil/bridge",
-  "version": "0.0.1-rc18",
+  "version": "0.0.1-rc24",
   "description": "polkawallet bridge sdk v0.0.5-10",
   "main": "index.js",
   "types": "index.d.ts",
@@ -19,8 +19,11 @@
     "build": "tsc",
     "build-es": "node ./esbuild.mjs && tsc --emitDeclarationOnly --outDir dist/types/",
     "test": "jest",
+    "cleanup": "rm -rf ./build",
     "lint": "polkadot-dev-run-lint",
-    "build:release": "polkadot-ci-ghact-build"
+    "build:release": "polkadot-ci-ghact-build",
+    "package:cp": "cp -R ./package.json ./build/package.json",
+    "package:prod": "yarn cleanup && yarn lint && yarn build && yarn package:cp"
   },
   "peerDependencies": {
     "@polkadot/api": ">9"
@@ -47,7 +50,6 @@
     "es-jest": "^2.0.0",
     "esbuild": "^0.14.53",
     "eslint-plugin-unused-imports": "^2.0.0",
-    "jest": "^28.1.1",
     "ts-jest": "^28.0.8",
     "typescript": "^4.7.4"
   },
