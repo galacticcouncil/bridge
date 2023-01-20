@@ -5,7 +5,6 @@ import { BaseCrossChainAdapter } from './base-chain-adapter';
 import { ChainName } from './configs';
 import { Bridge } from './index';
 import { AcalaAdapter } from './adapters/acala';
-import { FN } from './types';
 import { HydradxAdapter } from './adapters/hydradx';
 
 const CHAINS: Record<string, string[]> = {
@@ -73,7 +72,7 @@ describe('Bridge sdk usage', () => {
     const chain: ChainName = 'acala';
     const toChain: ChainName = 'hydradx';
     const token = 'DAI';
-    const testAddress = 'fill';
+    const testAddress = 'aaa';
 
     const balance = await firstValueFrom(availableAdapters[chain].subscribeTokenBalance(token, testAddress));
 
