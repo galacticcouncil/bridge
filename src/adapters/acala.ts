@@ -1,4 +1,4 @@
-import { Wallet, WalletConfigs } from "@acala-network/sdk/wallet";
+import { WalletConfigs } from "@acala-network/sdk/wallet";
 import { AnyApi, FixedPointNumber } from "@acala-network/sdk-core";
 import { EvmRpcProvider } from "@acala-network/eth-providers";
 import {
@@ -25,6 +25,7 @@ import {
   CrossChainTransferParams,
 } from "../types";
 import { isChainEqual } from "../utils/is-chain-equal";
+import { AcalaWallet } from "src/wallet/acala";
 
 const ACALA_DEST_WEIGHT = "5000000000";
 
@@ -646,7 +647,7 @@ export const karuraTokensConfig: Record<string, BasicToken> = {
 };
 
 class BaseAcalaAdapter extends BaseCrossChainAdapter {
-  private wallet?: Wallet;
+  private wallet?: AcalaWallet;
   protected evmEndpoint?: string | string[];
 
   public override async setApi(api: AnyApi) {
@@ -658,7 +659,7 @@ class BaseAcalaAdapter extends BaseCrossChainAdapter {
 
     await api.isReady;
 
-    this.wallet = new Wallet(api, {
+    this.wallet = new AcalaWallet(api, {
       evmProvider: this.evmEndpoint
         ? new EvmRpcProvider(this.evmEndpoint)
         : null,

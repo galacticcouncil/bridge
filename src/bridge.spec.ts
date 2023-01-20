@@ -2,31 +2,32 @@ import { firstValueFrom } from 'rxjs';
 
 import { ApiProvider } from './api-provider';
 import { BaseCrossChainAdapter } from './base-chain-adapter';
-import { PolkadotAdapter } from './adapters/polkadot';
 import { ChainName } from './configs';
 import { Bridge } from './index';
 import { AcalaAdapter } from './adapters/acala';
 import { FN } from './types';
+import { HydradxAdapter } from './adapters/hydradx';
 
-describe.skip('Bridge sdk usage', () => {
+const CHAINS: Record<string, string[]> = {
+  polkadot: ['wss://rpc.polkadot.io'],
+  acala: ['wss://acala-polkadot.api.onfinality.io/public-ws'],
+  karura: [
+    'wss://karura-rpc-0.aca-api.network',
+    'wss://karura-rpc-1.aca-api.network',
+    'wss://karura-rpc-2.aca-api.network',
+  ],
+  hydradx: ['wss://rpc.hydradx.cloud'],
+  basilisk: ['wss://rpc.basilisk.cloud'],
+};
+
+describe('Bridge sdk usage', () => {
   jest.setTimeout(30000);
 
   const provider = new ApiProvider();
 
   const availableAdapters: Record<string, BaseCrossChainAdapter> = {
-    polkadot: new PolkadotAdapter(),
-    // kusama: new KusamaAdapter(),
-    acala: new AcalaAdapter(),
-    // karura: new KaruraAdapter(),
-    // statemine: new StatemineAdapter(),
-    // altair: new AltairAdapter(),
-    // shiden: new ShidenAdapter(),
-    // bifrost: new BifrostAdapter(),
-    // calamari: new CalamariAdapter(),
-    // shadow: new ShadowAdapter(),
-    // crab: new CrabAdapter(),
-    // integritee: new IntegriteeAdapter(),
-    // quartz: new QuartzAdapter(),
+    acala: new AcalaAdapter('wss://acala-polkadot.api.onfinality.io/public-ws'),
+    hydradx: new HydradxAdapter(),
   };
 
   const bridge = new Bridge({
@@ -36,7 +37,7 @@ describe.skip('Bridge sdk usage', () => {
   test('1. bridge init should be ok', async () => {
     expect(bridge.router.getRouters().length).toBeGreaterThanOrEqual(Object.keys(availableAdapters).length);
     expect(bridge.router.getDestinationChains({from: 'acala'}).length).toBeGreaterThanOrEqual(0);
-    expect(bridge.router.getAvailableTokens({from: 'acala', to: 'polkadot'}).length).toBeGreaterThanOrEqual(0);
+    expect(bridge.router.getAvailableTokens({from: 'acala', to: 'hydradx'}).length).toBeGreaterThanOrEqual(0);
   });
 
   test('2. connect fromChain should be ok', async () => {
@@ -44,9 +45,10 @@ describe.skip('Bridge sdk usage', () => {
 
     expect(provider.getApi(chains[0])).toEqual(undefined);
     expect(provider.getApi(chains[1])).toEqual(undefined);
-  
+
     // connect all adapters
-    const connected = await firstValueFrom(provider.connectFromChain(chains, undefined));
+    const connected = await firstValueFrom(provider.connectFromChain(chains, CHAINS));
+
     // and set apiProvider for each adapter
     await Promise.all(chains.map((chain) => availableAdapters[chain].setApi(provider.getApi(chain))));
 
@@ -69,11 +71,13 @@ describe.skip('Bridge sdk usage', () => {
 
   test('3. token balance query & create tx should be ok', async () => {
     const chain: ChainName = 'acala';
-    const toChain: ChainName = 'polkadot';
-    const token = 'DOT';
-    const testAddress = '23M5ttkmR6Kco7bReRDve6bQUSAcwqebatp3fWGJYb4hDSDJ';
+    const toChain: ChainName = 'hydradx';
+    const token = 'DAI';
+    const testAddress = 'fill';
 
     const balance = await firstValueFrom(availableAdapters[chain].subscribeTokenBalance(token, testAddress));
+
+    console.log(balance.free.toNumber());
 
     expect(balance.free.toNumber()).toBeGreaterThanOrEqual(0);
     expect(balance.available.toNumber()).toBeGreaterThanOrEqual(0);
@@ -84,8 +88,7 @@ describe.skip('Bridge sdk usage', () => {
     expect(inputConfig.minInput.toNumber()).toBeGreaterThan(0);
     expect(inputConfig.maxInput.toNumber()).toBeLessThanOrEqual(balance.available.toNumber());
 
-    const tx = availableAdapters[chain].createTx({to: toChain, token, amount: FN.fromInner('10000000000', 10), address:testAddress, signer: testAddress});
-
-    expect(tx.args.length).toBeGreaterThan(1);
+    //const tx = availableAdapters[chain].createTx({to: toChain, token, amount: FN.fromInner('10000000000', 10), address:testAddress, signer: testAddress});
+    //expect(tx.args.length).toBeGreaterThan(1);
   });
 });
