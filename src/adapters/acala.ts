@@ -25,7 +25,7 @@ import {
   CrossChainTransferParams,
 } from "../types";
 import { isChainEqual } from "../utils/is-chain-equal";
-import { AcalaWallet } from "src/wallet/acala";
+import { AcalaWallet } from "../wallet/acala";
 
 const ACALA_DEST_WEIGHT = "5000000000";
 
@@ -58,7 +58,7 @@ export const acalaRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     to: "hydradx",
     token: "WETH",
     xcm: {
-      fee: { token: "WETH", amount: "0" },
+      fee: { token: "WETH", amount: "1811710000000" },
       weightLimit: ACALA_DEST_WEIGHT,
     },
   },

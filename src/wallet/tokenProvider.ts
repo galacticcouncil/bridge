@@ -187,8 +187,6 @@ export class AcalaTokenProvider implements TokenProvider {
       .reverse()
       .find((item) => this.isTokenEqual(name, item));
 
-    console.log(result);
-
     if (!result) throw new CurrencyNotFound(name);
 
     return result;
