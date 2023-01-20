@@ -7,13 +7,6 @@ import {
 } from "@acala-network/sdk-core";
 import { StorageKey, Option, u16 } from "@polkadot/types";
 import {
-  AcalaPrimitivesTradingPair,
-  ModuleDexTradingPairStatus,
-  AcalaPrimitivesCurrencyAssetIds,
-  AcalaPrimitivesCurrencyAssetMetadata,
-  XcmV1MultiLocation,
-} from "@polkadot/types/lookup";
-import {
   BehaviorSubject,
   combineLatest,
   firstValueFrom,
@@ -30,8 +23,14 @@ import { ChainType } from "@acala-network/sdk/types";
 import { getChainType } from "@acala-network/sdk/utils/get-chain-type";
 import { TokenRecord } from "@acala-network/sdk/wallet/types";
 import { CurrencyNotFound } from "../errors";
-import "@polkadot/api-augment";
 import "@acala-network/types/argument/api-tx";
+import {
+  AcalaPrimitivesCurrencyAssetIds,
+  AcalaPrimitivesCurrencyAssetMetadata,
+  AcalaPrimitivesTradingPair,
+  ModuleDexTradingPairStatus,
+  XcmV1MultiLocation,
+} from "./types";
 
 export const createStorages = (api: AnyApi) => {
   return {
