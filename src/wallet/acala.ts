@@ -33,6 +33,7 @@ import {
 import { ChainType, Homa, Liquidity, SDKNotReady } from "@acala-network/sdk";
 import { getMaxAvailableBalance } from "@acala-network/sdk/wallet/utils/get-max-available-balance";
 import { MarketPriceProvider } from "@acala-network/sdk/wallet/price-provider/market-price-provider";
+import { OraclePriceProvider } from "@acala-network/sdk/wallet/price-provider/oracle-price-provider";
 import { PriceProviderType } from "@acala-network/sdk/wallet/price-provider/types";
 import { BaseSDK } from "@acala-network/sdk/types";
 import { createStorages } from "@acala-network/sdk/wallet/storages";
@@ -89,16 +90,19 @@ export class AcalaWallet implements BaseSDK {
           api: this.api,
           evmProvider: this.configs?.evmProvider,
         });
+
         this.web3Name = new DIDWeb3Name();
 
         const market = new MarketPriceProvider();
         const dex = new DexPriceProvider(this.liquidity);
         const aggregate = new AggregateProvider({ market, dex });
+        const oracle = new OraclePriceProvider(this.api);
 
         this.priceProviders = {
           // default price provider
           [PriceProviderType.AGGREGATE]: aggregate,
           [PriceProviderType.MARKET]: market,
+          [PriceProviderType.ORACLE]: oracle,
           [PriceProviderType.DEX]: dex,
           ...this.configs?.priceProviders,
         };

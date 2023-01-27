@@ -71,8 +71,8 @@ describe('Bridge sdk usage', () => {
   test('3. token balance query & create tx should be ok', async () => {
     const chain: ChainName = 'acala';
     const toChain: ChainName = 'hydradx';
-    const token = 'DAI';
-    const testAddress = 'aaa';
+    const token = 'WBTC';
+    const testAddress = '24ZGSbmos67brVoJnskkWcH4qP6DYDnyPULhiuBKxq97skrF';
 
     const balance = await firstValueFrom(availableAdapters[chain].subscribeTokenBalance(token, testAddress));
 

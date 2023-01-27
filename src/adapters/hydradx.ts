@@ -53,11 +53,20 @@ export const hydradxRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
       weightLimit: DEST_WEIGHT,
     },
   },
+  {
+    to: "acala",
+    token: "WBTC",
+    xcm: {
+      fee: { token: "WBTC", amount: "0" },
+      weightLimit: DEST_WEIGHT,
+    },
+  },
 ];
 
 export const hydradxTokensConfig: Record<string, BasicToken> = {
   HDX: { name: "HDX", symbol: "HDX", decimals: 12, ed: "1000000000000" },
   WETH: { name: "WETH", symbol: "WETH", decimals: 18, ed: "7000000000000" },
+  WBTC: { name: "WBTC", symbol: "WBTC", decimals: 8, ed: "44" },
   DOT: { name: "DOT", symbol: "DOT", decimals: 10, ed: "17540000" },
   DAI: { name: "DAI", symbol: "DAI", decimals: 18, ed: "10000000000" },
 };
@@ -65,6 +74,7 @@ export const hydradxTokensConfig: Record<string, BasicToken> = {
 const HYDRADX_SUPPORTED_TOKENS: Record<string, number> = {
   HDX: 0,
   DAI: 2,
+  WBTC: 3,
   WETH: 4,
   DOT: 5,
 };
