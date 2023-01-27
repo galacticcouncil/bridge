@@ -57,7 +57,7 @@ export const hydradxRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     to: "acala",
     token: "WBTC",
     xcm: {
-      fee: { token: "WBTC", amount: "0" },
+      fee: { token: "WBTC", amount: "4" },
       weightLimit: DEST_WEIGHT,
     },
   },
