@@ -28,18 +28,10 @@ export const statemineRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     },
   },
   {
-    to: "karura",
-    token: "RMRK",
+    to: "basilisk",
+    token: "USDT",
     xcm: {
-      fee: { token: "RMRK", amount: "6400000" },
-      weightLimit: "Unlimited",
-    },
-  },
-  {
-    to: "karura",
-    token: "ARIS",
-    xcm: {
-      fee: { token: "ARIS", amount: "6400000" },
+      fee: { token: "USDT", amount: "0" },
       weightLimit: "Unlimited",
     },
   },
@@ -264,17 +256,7 @@ class BaseStatemintAdapter extends BaseCrossChainAdapter {
       );
     }
 
-    // to karura/acala
     const assetId = SUPPORTED_TOKENS[token];
-
-    if (
-      (to !== "acala" && to !== "karura") ||
-      token === this.balanceAdapter?.nativeToken ||
-      !assetId
-    ) {
-      throw new CurrencyNotFound(token);
-    }
-
     const dst = { X2: ["Parent", { Parachain: toChain.paraChainId }] };
     const acc = { X1: { AccountId32: { id: accountId, network: "Any" } } };
     const ass = [

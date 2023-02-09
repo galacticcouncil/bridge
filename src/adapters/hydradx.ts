@@ -98,9 +98,9 @@ export const basiliskRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
   },
   {
     to: "karura",
-    token: "KUSD",
+    token: "aUSD",
     xcm: {
-      fee: { token: "KUSD", amount: "5060238106" },
+      fee: { token: "aUSD", amount: "5060238106" },
       weightLimit: DEST_WEIGHT,
     },
   },
@@ -112,6 +112,22 @@ export const basiliskRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
       weightLimit: DEST_WEIGHT,
     },
   },
+  {
+    to: "statemine",
+    token: "USDT",
+    xcm: {
+      fee: { token: "USDT", amount: "0" },
+      weightLimit: DEST_WEIGHT,
+    },
+  },
+  {
+    to: "tinkernet",
+    token: "TNKR",
+    xcm: {
+      fee: { token: "TNKR", amount: "0" },
+      weightLimit: DEST_WEIGHT,
+    },
+  },
 ];
 
 export const basiliskTokensConfig: Record<string, BasicToken> = {
@@ -119,12 +135,17 @@ export const basiliskTokensConfig: Record<string, BasicToken> = {
   KUSD: { name: "KUSD", symbol: "KUSD", decimals: 12, ed: "10000000000" },
   aUSD: { name: "aUSD", symbol: "aUSD", decimals: 12, ed: "10000000000" },
   KSM: { name: "KSM", symbol: "KSM", decimals: 12, ed: "100000000" },
+  USDT: { name: "USDT", symbol: "USDT", decimals: 6, ed: "10000" },
+  TNKR: { name: "TNKR", symbol: "TNKR", decimals: 12, ed: "1000000000" },
 };
 
 const BASILISK_SUPPORTED_TOKENS: Record<string, number> = {
   BSX: 0,
   KUSD: 2,
+  aUSD: 2,
   KSM: 1,
+  TNKR: 6,
+  USDT: 14,
 };
 
 const tokensConfig: Record<string, Record<string, BasicToken>> = {

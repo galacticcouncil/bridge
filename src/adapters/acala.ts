@@ -70,111 +70,8 @@ export const acalaRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
       weightLimit: ACALA_DEST_WEIGHT,
     },
   },
-  {
-    to: "moonbeam",
-    token: "GLMR",
-    xcm: {
-      fee: { token: "GLMR", amount: "8000000000000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "moonbeam",
-    token: "ACA",
-    xcm: {
-      fee: { token: "ACA", amount: "24963428577" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "moonbeam",
-    token: "AUSD",
-    xcm: {
-      fee: { token: "AUSD", amount: "2000000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "parallel",
-    token: "PARA",
-    xcm: {
-      fee: { token: "PARA", amount: "9600000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "parallel",
-    token: "ACA",
-    xcm: {
-      fee: { token: "ACA", amount: "1920000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "parallel",
-    token: "AUSD",
-    xcm: {
-      fee: { token: "AUSD", amount: "2880000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "parallel",
-    token: "LDOT",
-    xcm: {
-      fee: { token: "LDOT", amount: "96000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "astar",
-    token: "ASTR",
-    xcm: {
-      fee: { token: "ASTR", amount: "4635101624603120" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "astar",
-    token: "ACA",
-    xcm: {
-      fee: { token: "ACA", amount: "1108000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "astar",
-    token: "AUSD",
-    xcm: {
-      fee: { token: "AUSD", amount: "252800000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "astar",
-    token: "LDOT",
-    xcm: {
-      fee: { token: "LDOT", amount: "3692000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "interlay",
-    token: "INTR",
-    xcm: {
-      fee: { token: "INTR", amount: "21787589" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "interlay",
-    token: "IBTC",
-    xcm: {
-      fee: { token: "IBTC", amount: "72" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
 ];
+
 export const karuraRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
   {
     to: "kusama",
@@ -186,353 +83,9 @@ export const karuraRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
   },
   {
     to: "statemine",
-    token: "RMRK",
-    xcm: {
-      fee: { token: "KSM", amount: "16000000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "statemine",
-    token: "ARIS",
-    xcm: {
-      fee: { token: "KSM", amount: "16000000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "statemine",
     token: "USDT",
     xcm: {
-      fee: { token: "KSM", amount: "16000000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "shiden",
-    token: "SDN",
-    xcm: {
-      fee: { token: "SDN", amount: "4662276356431024" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "shiden",
-    token: "KUSD",
-    xcm: {
-      fee: { token: "KUSD", amount: "1200000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "bifrost",
-    token: "BNC",
-    xcm: {
-      fee: { token: "BNC", amount: "5120000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "bifrost",
-    token: "KAR",
-    xcm: {
-      fee: { token: "KAR", amount: "4800000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "bifrost",
-    token: "KUSD",
-    xcm: {
-      fee: { token: "KUSD", amount: "25600000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "bifrost",
-    token: "VSKSM",
-    xcm: {
-      fee: { token: "VSKSM", amount: "64000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "altair",
-    token: "AIR",
-    xcm: {
-      fee: { token: "AIR", amount: "6400000000000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "altair",
-    token: "KUSD",
-    xcm: {
-      fee: { token: "KUSD", amount: "51200000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "shadow",
-    token: "CSM",
-    xcm: {
-      fee: { token: "CSM", amount: "4000000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "shadow",
-    token: "KAR",
-    xcm: {
-      fee: { token: "KAR", amount: "4000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "shadow",
-    token: "KUSD",
-    xcm: {
-      fee: { token: "KUSD", amount: "4000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "crab",
-    token: "CRAB",
-    xcm: {
-      fee: { token: "CRAB", amount: "4000000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "integritee",
-    token: "TEER",
-    xcm: {
-      fee: { token: "TEER", amount: "4000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "kintsugi",
-    token: "KINT",
-    xcm: {
-      fee: { token: "KINT", amount: "170666666" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "kintsugi",
-    token: "KBTC",
-    xcm: {
-      fee: { token: "KBTC", amount: "85" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "kintsugi",
-    token: "LKSM",
-    xcm: {
-      fee: { token: "LKSM", amount: "186480000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "khala",
-    token: "PHA",
-    xcm: {
-      fee: { token: "PHA", amount: "64000000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "khala",
-    token: "KUSD",
-    xcm: {
-      fee: { token: "KUSD", amount: "16000000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "khala",
-    token: "KAR",
-    xcm: {
-      fee: { token: "KAR", amount: "8000000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "kico",
-    token: "KICO",
-    xcm: {
-      fee: { token: "KICO", amount: "96000000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "kico",
-    token: "KAR",
-    xcm: {
-      fee: { token: "KAR", amount: "160000000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "kico",
-    token: "KUSD",
-    xcm: {
-      fee: { token: "KUSD", amount: "320000000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "calamari",
-    token: "KMA",
-    xcm: {
-      fee: { token: "KMA", amount: "4000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "calamari",
-    token: "KUSD",
-    xcm: {
-      fee: { token: "KUSD", amount: "100000000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "calamari",
-    token: "KAR",
-    xcm: {
-      fee: { token: "KAR", amount: "100000000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "calamari",
-    token: "LKSM",
-    xcm: {
-      fee: { token: "LKSM", amount: "7692307692" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "moonriver",
-    token: "MOVR",
-    xcm: {
-      fee: { token: "MOVR", amount: "80000000000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "moonriver",
-    token: "KAR",
-    xcm: {
-      fee: { token: "KAR", amount: "9880000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "moonriver",
-    token: "KUSD",
-    xcm: {
-      fee: { token: "KUSD", amount: "16536000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "heiko",
-    token: "HKO",
-    xcm: {
-      fee: { token: "HKO", amount: "1440000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "heiko",
-    token: "KAR",
-    xcm: {
-      fee: { token: "KAR", amount: "2400000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "heiko",
-    token: "KUSD",
-    xcm: {
-      fee: { token: "KUSD", amount: "19200000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "heiko",
-    token: "LKSM",
-    xcm: {
-      fee: { token: "LKSM", amount: "48000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "pichiu",
-    token: "PCHU",
-    xcm: {
-      fee: { token: "PCHU", amount: "400000000000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "pichiu",
-    token: "KAR",
-    xcm: {
-      fee: { token: "KAR", amount: "400000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "pichiu",
-    token: "KUSD",
-    xcm: {
-      fee: { token: "KUSD", amount: "400000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "pichiu",
-    token: "LKSM",
-    xcm: {
-      fee: { token: "LKSM", amount: "400000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "turing",
-    token: "TUR",
-    xcm: {
-      fee: { token: "TUR", amount: "1664000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "turing",
-    token: "KAR",
-    xcm: {
-      fee: { token: "KAR", amount: "32000000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "turing",
-    token: "KUSD",
-    xcm: {
-      fee: { token: "KUSD", amount: "256000000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "turing",
-    token: "LKSM",
-    xcm: {
-      fee: { token: "LKSM", amount: "6400000000" },
+      fee: { token: "USDT", amount: "16000000000" },
       weightLimit: ACALA_DEST_WEIGHT,
     },
   },
@@ -546,48 +99,27 @@ export const karuraRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
   },
   {
     to: "basilisk",
-    token: "KUSD",
+    token: "USDT",
     xcm: {
-      fee: { token: "KUSD", amount: "3150402683" },
+      fee: { token: "USDT", amount: "0" },
       weightLimit: ACALA_DEST_WEIGHT,
     },
   },
   {
-    to: "listen",
-    token: "LT",
+    to: "basilisk",
+    token: "KSM",
     xcm: {
-      fee: { token: "LT", amount: "6400000000" },
+      fee: { token: "KSM", amount: "0" },
       weightLimit: ACALA_DEST_WEIGHT,
     },
   },
   {
-    to: "listen",
-    token: "KAR",
+    to: "basilisk",
+    token: "aUSD",
     xcm: {
-      fee: { token: "KAR", amount: "6400000000" },
+      fee: { token: "aUSD", amount: "3150402683" },
       weightLimit: ACALA_DEST_WEIGHT,
     },
-  },
-  {
-    to: "listen",
-    token: "KUSD",
-    xcm: {
-      fee: { token: "KUSD", amount: "6400000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "listen",
-    token: "LKSM",
-    xcm: {
-      fee: { token: "LKSM", amount: "6400000000" },
-      weightLimit: ACALA_DEST_WEIGHT,
-    },
-  },
-  {
-    to: "quartz",
-    token: "QTZ",
-    xcm: { fee: { token: "QTZ", amount: "0" }, weightLimit: ACALA_DEST_WEIGHT },
   },
 ];
 
@@ -619,6 +151,7 @@ export const acalaTokensConfig: Record<string, BasicToken> = {
 export const karuraTokensConfig: Record<string, BasicToken> = {
   KAR: { name: "KAR", symbol: "KAR", decimals: 12, ed: "100000000000" },
   KUSD: { name: "KUSD", symbol: "KUSD", decimals: 12, ed: "10000000000" },
+  aUSD: { name: "aUSD", symbol: "aUSD", decimals: 12, ed: "10000000000" },
   LKSM: { name: "LKSM", symbol: "LKSM", decimals: 12, ed: "500000000" },
   SDN: { name: "SDN", symbol: "SDN", decimals: 18, ed: "10000000000000000" },
   BNC: { name: "BNC", symbol: "BNC", decimals: 12, ed: "8000000000" },
