@@ -24,7 +24,7 @@ export const tinkernetRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     to: "basilisk",
     token: "TNKR",
     xcm: {
-      fee: { token: "TNKR", amount: "0" },
+      fee: { token: "TNKR", amount: "13554386430" },
       weightLimit: DEST_WEIGHT,
     },
   },

@@ -84,7 +84,7 @@ export const basiliskRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     to: "kusama",
     token: "KSM",
     xcm: {
-      fee: { token: "KSM", amount: "11523248" },
+      fee: { token: "KSM", amount: "104571640" },
       weightLimit: "800000000",
     },
   },
@@ -108,10 +108,18 @@ export const basiliskRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     to: "karura",
     token: "KSM",
     xcm: {
-      fee: { token: "KSM", amount: "90741527" },
+      fee: { token: "KSM", amount: "321331850" },
       weightLimit: DEST_WEIGHT,
     },
   },
+  /*   {
+    to: "karura",
+    token: "USDT",
+    xcm: {
+      fee: { token: "USDT", amount: "0" },
+      weightLimit: DEST_WEIGHT,
+    },
+  }, */
   {
     to: "statemine",
     token: "USDT",
@@ -124,7 +132,7 @@ export const basiliskRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     to: "tinkernet",
     token: "TNKR",
     xcm: {
-      fee: { token: "TNKR", amount: "0" },
+      fee: { token: "TNKR", amount: "9270203240" },
       weightLimit: DEST_WEIGHT,
     },
   },
@@ -146,6 +154,10 @@ const BASILISK_SUPPORTED_TOKENS: Record<string, number> = {
   KSM: 1,
   TNKR: 6,
   USDT: 14,
+};
+
+const BASILISK_SUPPORTED_INDEXES: Record<string, number> = {
+  USDT: 1984,
 };
 
 const tokensConfig: Record<string, Record<string, BasicToken>> = {
@@ -333,6 +345,33 @@ class BaseHydradxAdapter extends BaseCrossChainAdapter {
         interior: { X1: { AccountId32: { id: accountId, network: "Any" } } },
         parents: 1,
       };
+    }
+
+    // to statemine
+    if (
+      isChainEqual(toChain, "statemine") &&
+      BASILISK_SUPPORTED_INDEXES[tokenId]
+    ) {
+      const ass = {
+        id: {
+          Concrete: {
+            parents: 1,
+            interior: {
+              X2: [
+                { PalletInstance: 50 },
+                { GeneralIndex: BASILISK_SUPPORTED_INDEXES[tokenId] },
+              ],
+            },
+          },
+        },
+        fun: { Fungible: amount.toChainData() },
+      };
+
+      return this.api?.tx.xToken.transferMultiassets(
+        { V1: ass },
+        { V1: dst },
+        this.getDestWeight(token, to)?.toString() || "undefined"
+      );
     }
 
     return this.api?.tx.xTokens.transfer(
