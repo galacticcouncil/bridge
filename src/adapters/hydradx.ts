@@ -112,19 +112,11 @@ export const basiliskRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
       weightLimit: DEST_WEIGHT,
     },
   },
-  /*   {
-    to: "karura",
-    token: "USDT",
-    xcm: {
-      fee: { token: "USDT", amount: "0" },
-      weightLimit: DEST_WEIGHT,
-    },
-  }, */
   {
     to: "statemine",
     token: "USDT",
     xcm: {
-      fee: { token: "USDT", amount: "0" },
+      fee: { token: "USDT", amount: "1183" },
       weightLimit: DEST_WEIGHT,
     },
   },
