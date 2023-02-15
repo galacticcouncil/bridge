@@ -156,7 +156,7 @@ const BASILISK_SUPPORTED_TOKENS: Record<string, number> = {
   USDT: 14,
 };
 
-const BASILISK_SUPPORTED_INDEXES: Record<string, number> = {
+const STATEMINE_ASSET_INDEXES: Record<string, number> = {
   USDT: 1984,
 };
 
@@ -350,16 +350,18 @@ class BaseHydradxAdapter extends BaseCrossChainAdapter {
     // to statemine
     if (
       isChainEqual(toChain, "statemine") &&
-      BASILISK_SUPPORTED_INDEXES[tokenId]
+      tokenId &&
+      STATEMINE_ASSET_INDEXES[tokenId]
     ) {
       const ass = {
         id: {
           Concrete: {
             parents: 1,
             interior: {
-              X2: [
+              X3: [
+                { Parachain: 1000 },
                 { PalletInstance: 50 },
-                { GeneralIndex: BASILISK_SUPPORTED_INDEXES[tokenId] },
+                { GeneralIndex: STATEMINE_ASSET_INDEXES[tokenId] },
               ],
             },
           },
@@ -367,10 +369,10 @@ class BaseHydradxAdapter extends BaseCrossChainAdapter {
         fun: { Fungible: amount.toChainData() },
       };
 
-      return this.api?.tx.xToken.transferMultiassets(
+      return this.api?.tx.xTokens.transferMultiasset(
         { V1: ass },
         { V1: dst },
-        this.getDestWeight(token, to)?.toString() || "undefined"
+        "Unlimited"
       );
     }
 
