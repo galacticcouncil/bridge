@@ -48,15 +48,11 @@ export const statemineTokensConfig: Record<
 > = {
   statemine: {
     KSM: { name: "KSM", symbol: "KSM", decimals: 12, ed: "79999999" },
-    RMRK: { name: "RMRK", symbol: "RMRK", decimals: 10, ed: "100000000" },
-    ARIS: { name: "ARIS", symbol: "ARIS", decimals: 8, ed: "10000000" },
-    USDT: { name: "USDT", symbol: "USDT", decimals: 8, ed: "1000" },
+    USDT: { name: "USDT", symbol: "USDT", decimals: 6, ed: "1000" },
   },
 };
 
 const SUPPORTED_TOKENS: Record<string, BN> = {
-  RMRK: new BN(8),
-  ARIS: new BN(16),
   USDT: new BN(1984),
 };
 
