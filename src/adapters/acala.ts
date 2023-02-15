@@ -85,7 +85,7 @@ export const karuraRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     to: "statemine",
     token: "USDT",
     xcm: {
-      fee: { token: "USDT", amount: "16000000000" },
+      fee: { token: "USDT", amount: "1183" },
       weightLimit: ACALA_DEST_WEIGHT,
     },
   },
@@ -186,6 +186,10 @@ export const karuraTokensConfig: Record<string, BasicToken> = {
   ARIS: { name: "ARIS", symbol: "ARIS", decimals: 8, ed: "1000000000000" },
   USDT: { name: "USDT", symbol: "USDT", decimals: 6, ed: "10000" },
   QTZ: { name: "QTZ", symbol: "QTZ", decimals: 18, ed: "40000000000" },
+};
+
+const STATEMINE_ASSET_INDEXES: Record<string, number> = {
+  USDT: 1984,
 };
 
 class BaseAcalaAdapter extends BaseCrossChainAdapter {
@@ -372,22 +376,42 @@ class BaseAcalaAdapter extends BaseCrossChainAdapter {
       };
     }
 
-    return isChainEqual(toChain, "statemine")
-      ? this.api.tx.xTokens.transferMulticurrencies(
-          [
-            [tokenFormSDK?.toChainData(), amount.toChainData()],
-            [{ Token: destFee.token }, destFee.balance.toChainData()],
-          ],
-          1,
-          { V1: dst },
-          (useNewDestWeight ? "Unlimited" : oldDestWeight?.toString()) as any
-        )
-      : this.api.tx.xTokens.transfer(
-          tokenFormSDK?.toChainData() as any,
-          amount.toChainData(),
-          { V1: dst },
-          (useNewDestWeight ? "Unlimited" : oldDestWeight?.toString()) as any
-        );
+    const tokenId = tokenFormSDK?.symbol;
+    // to statemine
+    if (
+      isChainEqual(toChain, "statemine") &&
+      tokenId &&
+      STATEMINE_ASSET_INDEXES[tokenId]
+    ) {
+      const ass = {
+        id: {
+          Concrete: {
+            parents: 1,
+            interior: {
+              X3: [
+                { Parachain: 1000 },
+                { PalletInstance: 50 },
+                { GeneralIndex: STATEMINE_ASSET_INDEXES[tokenId] },
+              ],
+            },
+          },
+        },
+        fun: { Fungible: amount.toChainData() },
+      };
+
+      return this.api?.tx.xTokens.transferMultiasset(
+        { V1: ass },
+        { V1: dst },
+        "Unlimited"
+      );
+    }
+
+    return this.api.tx.xTokens.transfer(
+      tokenFormSDK?.toChainData() as any,
+      amount.toChainData(),
+      { V1: dst },
+      (useNewDestWeight ? "Unlimited" : oldDestWeight?.toString()) as any
+    );
   }
 }
 
