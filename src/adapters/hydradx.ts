@@ -128,6 +128,14 @@ export const basiliskRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
       weightLimit: DEST_WEIGHT,
     },
   },
+  {
+    to: "robonomics",
+    token: "XRT",
+    xcm: {
+      fee: { token: "XRT", amount: "0" },
+      weightLimit: DEST_WEIGHT,
+    },
+  },
 ];
 
 export const basiliskTokensConfig: Record<string, BasicToken> = {
@@ -137,6 +145,7 @@ export const basiliskTokensConfig: Record<string, BasicToken> = {
   KSM: { name: "KSM", symbol: "KSM", decimals: 12, ed: "100000000" },
   USDT: { name: "USDT", symbol: "USDT", decimals: 6, ed: "10000" },
   TNKR: { name: "TNKR", symbol: "TNKR", decimals: 12, ed: "1000000000" },
+  XRT: { name: "XRT", symbol: "XRT", decimals: 9, ed: "1683502" },
 };
 
 const BASILISK_SUPPORTED_TOKENS: Record<string, number> = {
@@ -146,6 +155,7 @@ const BASILISK_SUPPORTED_TOKENS: Record<string, number> = {
   KSM: 1,
   TNKR: 6,
   USDT: 14,
+  XRT: 16,
 };
 
 const STATEMINE_ASSET_INDEXES: Record<string, number> = {
