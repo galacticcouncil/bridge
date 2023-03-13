@@ -25,7 +25,7 @@ export const robonomicsRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] =
       to: "basilisk",
       token: "XRT",
       xcm: {
-        fee: { token: "XRT", amount: "0" },
+        fee: { token: "XRT", amount: "447703" },
         weightLimit: DEST_WEIGHT,
       },
     },
@@ -157,16 +157,27 @@ class RobonomicsBaseAdapter extends BaseCrossChainAdapter {
 
     const accountId = this.api?.createType("AccountId32", address).toHex();
 
-    const dst = { X1: { Parachain: toChain.paraChainId } };
-    const acc = { X1: { AccountId32: { id: accountId, network: "Any" } } };
-    const ass = [{ ConcreteFungible: { amount: amount.toChainData() } }];
+    const dst = {
+      interior: { X1: { ParaChain: toChain.paraChainId } },
+      parents: 1,
+    };
+    const acc = {
+      interior: { X1: { AccountId32: { id: accountId, network: "Any" } } },
+      parents: 0,
+    };
+    const ass = [
+      {
+        fun: { Fungible: amount.toChainData() },
+        id: { Concrete: { interior: "Here", parents: 0 } },
+      },
+    ];
 
     return this.api?.tx.polkadotXcm.limitedReserveTransferAssets(
-      { V0: dst },
-      { V0: acc },
-      { V0: ass },
+      { V1: dst },
+      { V1: acc },
+      { V1: ass },
       0,
-      "unlimited"
+      { Limited: "400000000" }
     );
   }
 }
