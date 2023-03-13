@@ -108,9 +108,9 @@ describe("Bridge sdk usage", () => {
   });
 
   test("3. token balance query & create tx should be ok", async () => {
-    const chain: ChainName = "basilisk";
-    const toChain: ChainName = "karura";
-    const token = "KSM";
+    const chain: ChainName = "karura";
+    const toChain: ChainName = "statemine";
+    const token = "USDT";
     const testAddress = "qM4C3MB4Mr6AkKcPwPSYs3yBrtj2rqftDNbv83i5YzkVJo9";
 
     const balance = await firstValueFrom(
@@ -130,6 +130,8 @@ describe("Bridge sdk usage", () => {
         signer: testAddress,
       })
     );
+
+    console.log(JSON.stringify(inputConfig, null, 2));
 
     expect(BigInt(inputConfig.estimateFee)).toBeGreaterThanOrEqual(BigInt(0));
     expect(inputConfig.minInput.toNumber()).toBeGreaterThan(0);
