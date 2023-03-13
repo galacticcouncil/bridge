@@ -152,27 +152,21 @@ class RobonomicsBaseAdapter extends BaseCrossChainAdapter {
       throw new ApiNotFound(this.chain.id);
     }
 
-    const { address, amount, to, token } = params;
+    const { address, amount, to } = params;
     const toChain = chains[to];
 
     const accountId = this.api?.createType("AccountId32", address).toHex();
 
-    return this.api.tx.xTokens.transfer(
-      "0",
-      amount.toChainData(),
-      {
-        V1: {
-          parents: 1,
-          interior: {
-            X2: [
-              { Parachain: toChain.paraChainId },
-              { AccountId32: { id: accountId, network: "Any" } },
-            ],
-          },
-        },
-      },
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.getDestWeight(token, to)!.toString()
+    const dst = { X1: { Parachain: toChain.paraChainId } };
+    const acc = { X1: { AccountId32: { id: accountId, network: "Any" } } };
+    const ass = [{ ConcreteFungible: { amount: amount.toChainData() } }];
+
+    return this.api?.tx.polkadotXcm.limitedReserveTransferAssets(
+      { V0: dst },
+      { V0: acc },
+      { V0: ass },
+      0,
+      "unlimited"
     );
   }
 }
