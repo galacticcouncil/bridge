@@ -132,7 +132,7 @@ export const basiliskRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     to: "robonomics",
     token: "XRT",
     xcm: {
-      fee: { token: "XRT", amount: "0" },
+      fee: { token: "XRT", amount: "4632" },
       weightLimit: DEST_WEIGHT,
     },
   },
