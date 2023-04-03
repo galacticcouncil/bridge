@@ -61,6 +61,14 @@ export const hydradxRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
       weightLimit: DEST_WEIGHT,
     },
   },
+  {
+    to: "statemine",
+    token: "USDT",
+    xcm: {
+      fee: { token: "USDT", amount: "0" },
+      weightLimit: DEST_WEIGHT,
+    },
+  },
 ];
 
 export const hydradxTokensConfig: Record<string, BasicToken> = {
@@ -69,6 +77,7 @@ export const hydradxTokensConfig: Record<string, BasicToken> = {
   WBTC: { name: "WBTC", symbol: "WBTC", decimals: 8, ed: "44" },
   DOT: { name: "DOT", symbol: "DOT", decimals: 10, ed: "17540000" },
   DAI: { name: "DAI", symbol: "DAI", decimals: 18, ed: "10000000000" },
+  USDT: { name: "USDT", symbol: "USDT", decimals: 6, ed: "10000" },
 };
 
 const HYDRADX_SUPPORTED_TOKENS: Record<string, number> = {
@@ -77,6 +86,7 @@ const HYDRADX_SUPPORTED_TOKENS: Record<string, number> = {
   WBTC: 3,
   WETH: 4,
   DOT: 5,
+  USDT: 10,
 };
 
 export const basiliskRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [

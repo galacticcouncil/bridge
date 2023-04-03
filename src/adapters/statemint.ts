@@ -36,6 +36,14 @@ export const statemineRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     },
   },
   {
+    to: "hydradx",
+    token: "USDT",
+    xcm: {
+      fee: { token: "USDT", amount: "0" },
+      weightLimit: "Unlimited",
+    },
+  },
+  {
     to: "karura",
     token: "USDT",
     xcm: { fee: { token: "USDT", amount: "808" }, weightLimit: "Unlimited" },
