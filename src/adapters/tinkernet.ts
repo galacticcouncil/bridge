@@ -151,7 +151,7 @@ class TinkernetBaseAdapter extends BaseCrossChainAdapter {
       throw new ApiNotFound(this.chain.id);
     }
 
-    const { address, amount, to, token } = params;
+    const { address, amount, to } = params;
     const toChain = chains[to];
 
     const accountId = this.api?.createType("AccountId32", address).toHex();
@@ -170,8 +170,7 @@ class TinkernetBaseAdapter extends BaseCrossChainAdapter {
           },
         },
       },
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.getDestWeight(token, to)!.toString()
+      "Unlimited"
     );
   }
 }
