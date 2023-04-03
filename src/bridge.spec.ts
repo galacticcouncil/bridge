@@ -8,7 +8,7 @@ import { AcalaAdapter, KaruraAdapter } from "./adapters/acala";
 import { BasiliskAdapter, HydradxAdapter } from "./adapters/hydradx";
 import { TinkernetAdapter } from "./adapters/tinkernet";
 import { StatemineAdapter } from "./adapters/statemint";
-import { RobonimicsAdapter } from "./adapters/robonomics";
+import { RobonomicsAdapter } from "./adapters/robonomics";
 
 const CHAINS: Record<string, string[]> = {
   polkadot: ["wss://rpc.polkadot.io"],
@@ -33,7 +33,7 @@ describe("Bridge sdk usage", () => {
     basilisk: new BasiliskAdapter(),
     tinkernet: new TinkernetAdapter(),
     statemine: new StatemineAdapter(),
-    robonomics: new RobonimicsAdapter(),
+    robonomics: new RobonomicsAdapter(),
   };
 
   const bridge = new Bridge({
@@ -110,9 +110,9 @@ describe("Bridge sdk usage", () => {
   });
 
   test("3. token balance query & create tx should be ok", async () => {
-    const chain: ChainName = "robonomics";
+    const chain: ChainName = "tinkernet";
     const toChain: ChainName = "basilisk";
-    const token = "XRT";
+    const token = "TNKR";
     const testAddress = "qM4C3MB4Mr6AkKcPwPSYs3yBrtj2rqftDNbv83i5YzkVJo9";
 
     const balance = await firstValueFrom(
