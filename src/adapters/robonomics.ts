@@ -182,7 +182,7 @@ class RobonomicsBaseAdapter extends BaseCrossChainAdapter {
   }
 }
 
-export class RobonimicsAdapter extends RobonomicsBaseAdapter {
+export class RobonomicsAdapter extends RobonomicsBaseAdapter {
   constructor() {
     super(chains.robonomics, robonomicsRoutersConfig, robonomicsTokensConfig);
   }
