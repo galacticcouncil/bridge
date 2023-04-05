@@ -19,7 +19,7 @@ import {
 const DEST_WEIGHT = "5000000000";
 
 export const interlayRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
-  {
+  /*   {
     to: "acala",
     token: "INTR",
     xcm: {
@@ -31,6 +31,11 @@ export const interlayRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     to: "acala",
     token: "IBTC",
     xcm: { fee: { token: "IBTC", amount: "9" }, weightLimit: DEST_WEIGHT },
+  }, */
+  {
+    to: "hydradx",
+    token: "IBTC",
+    xcm: { fee: { token: "IBTC", amount: "0" }, weightLimit: DEST_WEIGHT },
   },
 ];
 
@@ -230,8 +235,7 @@ class BaseInterlayAdapter extends BaseCrossChainAdapter {
           },
         },
       },
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.getDestWeight(token, to)!.toString()
+      "Unlimited"
     );
   }
 }

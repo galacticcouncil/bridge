@@ -23,7 +23,7 @@ export const statemintRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     to: "polkadot",
     token: "DOT",
     xcm: {
-      fee: { token: "DOT", amount: "0" },
+      fee: { token: "DOT", amount: "422000000" },
       weightLimit: "Unlimited",
     },
   },
@@ -31,7 +31,7 @@ export const statemintRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     to: "hydradx",
     token: "USDT",
     xcm: {
-      fee: { token: "USDT", amount: "0" },
+      fee: { token: "USDT", amount: "2200" },
       weightLimit: "Unlimited",
     },
   },
