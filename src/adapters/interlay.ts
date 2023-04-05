@@ -19,23 +19,10 @@ import {
 const DEST_WEIGHT = "5000000000";
 
 export const interlayRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
-  /*   {
-    to: "acala",
-    token: "INTR",
-    xcm: {
-      fee: { token: "INTR", amount: "93240000" },
-      weightLimit: DEST_WEIGHT,
-    },
-  },
-  {
-    to: "acala",
-    token: "IBTC",
-    xcm: { fee: { token: "IBTC", amount: "9" }, weightLimit: DEST_WEIGHT },
-  }, */
   {
     to: "hydradx",
     token: "IBTC",
-    xcm: { fee: { token: "IBTC", amount: "0" }, weightLimit: DEST_WEIGHT },
+    xcm: { fee: { token: "IBTC", amount: "7" }, weightLimit: DEST_WEIGHT },
   },
 ];
 

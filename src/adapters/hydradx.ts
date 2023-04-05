@@ -64,7 +64,7 @@ export const hydradxRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
   {
     to: "interlay",
     token: "IBTC",
-    xcm: { fee: { token: "IBTC", amount: "9" }, weightLimit: DEST_WEIGHT },
+    xcm: { fee: { token: "IBTC", amount: "62" }, weightLimit: DEST_WEIGHT },
   },
   {
     to: "statemint",
