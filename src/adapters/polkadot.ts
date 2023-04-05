@@ -31,6 +31,14 @@ export const polkadotRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
       weightLimit: "Unlimited",
     },
   },
+  {
+    to: "statemint",
+    token: "DOT",
+    xcm: {
+      fee: { token: "DOT", amount: "0" },
+      weightLimit: "Unlimited",
+    },
+  },
 ];
 export const kusamaRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
   {

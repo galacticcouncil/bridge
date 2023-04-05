@@ -18,6 +18,25 @@ import {
   CrossChainTransferParams,
 } from "../types";
 
+export const statemintRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
+  {
+    to: "polkadot",
+    token: "DOT",
+    xcm: {
+      fee: { token: "DOT", amount: "0" },
+      weightLimit: "Unlimited",
+    },
+  },
+  {
+    to: "hydradx",
+    token: "USDT",
+    xcm: {
+      fee: { token: "USDT", amount: "0" },
+      weightLimit: "Unlimited",
+    },
+  },
+];
+
 export const statemineRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
   {
     to: "kusama",
@@ -36,14 +55,6 @@ export const statemineRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     },
   },
   {
-    to: "hydradx",
-    token: "USDT",
-    xcm: {
-      fee: { token: "USDT", amount: "0" },
-      weightLimit: "Unlimited",
-    },
-  },
-  {
     to: "karura",
     token: "USDT",
     xcm: { fee: { token: "USDT", amount: "808" }, weightLimit: "Unlimited" },
@@ -55,7 +66,11 @@ export const statemineTokensConfig: Record<
   Record<string, BasicToken>
 > = {
   statemine: {
-    KSM: { name: "KSM", symbol: "KSM", decimals: 12, ed: "79999999" },
+    KSM: { name: "KSM", symbol: "KSM", decimals: 12, ed: "6671999988" },
+    USDT: { name: "USDT", symbol: "USDT", decimals: 6, ed: "1000" },
+  },
+  statemint: {
+    DOT: { name: "DOT", symbol: "DOT", decimals: 10, ed: "2001600000" },
     USDT: { name: "USDT", symbol: "USDT", decimals: 6, ed: "1000" },
   },
 };
@@ -288,6 +303,16 @@ export class StatemineAdapter extends BaseStatemintAdapter {
       chains.statemine,
       statemineRoutersConfig,
       statemineTokensConfig.statemine
+    );
+  }
+}
+
+export class StatemintAdapter extends BaseStatemintAdapter {
+  constructor() {
+    super(
+      chains.statemint,
+      statemintRoutersConfig,
+      statemineTokensConfig.statemint
     );
   }
 }

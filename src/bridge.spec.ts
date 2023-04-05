@@ -7,8 +7,9 @@ import { Bridge, FN } from "./index";
 import { AcalaAdapter, KaruraAdapter } from "./adapters/acala";
 import { BasiliskAdapter, HydradxAdapter } from "./adapters/hydradx";
 import { TinkernetAdapter } from "./adapters/tinkernet";
-import { StatemineAdapter } from "./adapters/statemint";
+import { StatemineAdapter, StatemintAdapter } from "./adapters/statemint";
 import { RobonomicsAdapter } from "./adapters/robonomics";
+import { PolkadotAdapter } from "./adapters/polkadot";
 
 const CHAINS: Record<string, string[]> = {
   polkadot: ["wss://rpc.polkadot.io"],
@@ -19,6 +20,7 @@ const CHAINS: Record<string, string[]> = {
   basilisk: ["wss://rpc.basilisk.cloud"],
   tinkernet: ["wss://invarch-tinkernet.api.onfinality.io/public-ws"],
   statemine: ["wss://statemine.api.onfinality.io/public-ws"],
+  statemint: ["wss://statemint.api.onfinality.io/public-ws"],
 };
 
 describe("Bridge sdk usage", () => {
@@ -27,12 +29,14 @@ describe("Bridge sdk usage", () => {
   const provider = new ApiProvider();
 
   const availableAdapters: Record<string, BaseCrossChainAdapter> = {
+    polkadot: new PolkadotAdapter(),
     acala: new AcalaAdapter("wss://acala-polkadot.api.onfinality.io/public-ws"),
     hydradx: new HydradxAdapter(),
     karura: new KaruraAdapter(),
     basilisk: new BasiliskAdapter(),
     tinkernet: new TinkernetAdapter(),
     statemine: new StatemineAdapter(),
+    statemint: new StatemintAdapter(),
     robonomics: new RobonomicsAdapter(),
   };
 
@@ -110,9 +114,9 @@ describe("Bridge sdk usage", () => {
   });
 
   test("3. token balance query & create tx should be ok", async () => {
-    const chain: ChainName = "tinkernet";
-    const toChain: ChainName = "basilisk";
-    const token = "TNKR";
+    const chain: ChainName = "statemint";
+    const toChain: ChainName = "hydradx";
+    const token = "USDT";
     const testAddress = "qM4C3MB4Mr6AkKcPwPSYs3yBrtj2rqftDNbv83i5YzkVJo9";
 
     const balance = await firstValueFrom(

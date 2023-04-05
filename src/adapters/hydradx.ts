@@ -62,7 +62,7 @@ export const hydradxRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     },
   },
   {
-    to: "statemine",
+    to: "statemint",
     token: "USDT",
     xcm: {
       fee: { token: "USDT", amount: "0" },
