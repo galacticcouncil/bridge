@@ -11,6 +11,7 @@ import { StatemineAdapter, StatemintAdapter } from "./adapters/statemint";
 import { RobonomicsAdapter } from "./adapters/robonomics";
 import { PolkadotAdapter } from "./adapters/polkadot";
 import { InterlayAdapter } from "./adapters/interlay";
+import { ZeitgeistAdapter } from "./adapters/zeitgeist";
 
 const CHAINS: Record<string, string[]> = {
   polkadot: ["wss://rpc.polkadot.io"],
@@ -23,6 +24,7 @@ const CHAINS: Record<string, string[]> = {
   statemine: ["wss://statemine.api.onfinality.io/public-ws"],
   statemint: ["wss://statemint.api.onfinality.io/public-ws"],
   interlay: ["wss://interlay.api.onfinality.io/public-ws"],
+  zeitgeist: ["wss://zeitgeist.api.onfinality.io/public-ws"],
 };
 
 describe("Bridge sdk usage", () => {
@@ -41,6 +43,7 @@ describe("Bridge sdk usage", () => {
     statemint: new StatemintAdapter(),
     robonomics: new RobonomicsAdapter(),
     interlay: new InterlayAdapter(),
+    zeitgeist: new ZeitgeistAdapter(),
   };
 
   const bridge = new Bridge({
@@ -118,9 +121,9 @@ describe("Bridge sdk usage", () => {
 
   test("3. token balance query & create tx should be ok", async () => {
     const chain: ChainName = "hydradx";
-    const toChain: ChainName = "interlay";
-    const token = "IBTC";
-    const testAddress = "qM4C3MB4Mr6AkKcPwPSYs3yBrtj2rqftDNbv83i5YzkVJo9";
+    const toChain: ChainName = "zeitgeist";
+    const token = "ZTG";
+    const testAddress = "7MHE9BUBEWU88cEto6P1XNNb66foSwAZPKhfL8GHW9exnuH1";
 
     const balance = await firstValueFrom(
       availableAdapters[chain].subscribeTokenBalance(token, testAddress)
