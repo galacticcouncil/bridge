@@ -8,18 +8,18 @@ import { ISubmittableResult } from "@polkadot/types/types";
 
 import { BalanceAdapter, BalanceAdapterConfigs } from "../balance-adapter";
 import { BaseCrossChainAdapter } from "../base-chain-adapter";
-import { ChainName, chains } from "../configs";
-import { ApiNotFound, CurrencyNotFound } from "../errors";
+import { ChainId, chains } from "../configs";
+import { ApiNotFound, TokenNotFound } from "../errors";
 import {
   BalanceData,
   BasicToken,
-  CrossChainRouterConfigs,
-  CrossChainTransferParams,
+  RouteConfigs,
+  TransferParams,
 } from "../types";
 
 const DEST_WEIGHT = "5000000000";
 
-export const zeitgeistRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
+export const zeitgeistRoutersConfig: Omit<RouteConfigs, "from">[] = [
   {
     to: "hydradx",
     token: "ZTG",
@@ -61,7 +61,7 @@ class ZeitgeistBalanceAdapter extends BalanceAdapter {
     const storage = this.storages.balances(address);
 
     if (token !== this.nativeToken) {
-      throw new CurrencyNotFound(token);
+      throw new TokenNotFound(token);
     }
 
     return storage.observable.pipe(
@@ -81,12 +81,12 @@ class ZeitgeistBalanceAdapter extends BalanceAdapter {
 class ZeitgeistBaseAdapter extends BaseCrossChainAdapter {
   private balanceAdapter?: ZeitgeistBalanceAdapter;
 
-  public override async setApi(api: AnyApi) {
+  public async init(api: AnyApi) {
     this.api = api;
 
     await api.isReady;
 
-    const chain = this.chain.id as ChainName;
+    const chain = this.chain.id as ChainId;
 
     this.balanceAdapter = new ZeitgeistBalanceAdapter({
       chain,
@@ -109,7 +109,7 @@ class ZeitgeistBaseAdapter extends BaseCrossChainAdapter {
   public subscribeMaxInput(
     token: string,
     address: string,
-    to: ChainName
+    to: ChainId
   ): Observable<FN> {
     if (!this.balanceAdapter) {
       throw new ApiNotFound(this.chain.id);
@@ -143,7 +143,7 @@ class ZeitgeistBaseAdapter extends BaseCrossChainAdapter {
   }
 
   public createTx(
-    params: CrossChainTransferParams
+    params: TransferParams
   ):
     | SubmittableExtrinsic<"promise", ISubmittableResult>
     | SubmittableExtrinsic<"rxjs", ISubmittableResult> {

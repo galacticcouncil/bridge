@@ -8,28 +8,27 @@ import { ISubmittableResult } from "@polkadot/types/types";
 
 import { BalanceAdapter, BalanceAdapterConfigs } from "../balance-adapter";
 import { BaseCrossChainAdapter } from "../base-chain-adapter";
-import { ChainName, chains } from "../configs";
-import { ApiNotFound, CurrencyNotFound } from "../errors";
+import { ChainId, chains } from "../configs";
+import { ApiNotFound, TokenNotFound } from "../errors";
 import {
   BalanceData,
   BasicToken,
-  CrossChainRouterConfigs,
-  CrossChainTransferParams,
+  RouteConfigs,
+  TransferParams,
 } from "../types";
 
 const DEST_WEIGHT = "5000000000";
 
-export const robonomicsRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] =
-  [
-    {
-      to: "basilisk",
-      token: "XRT",
-      xcm: {
-        fee: { token: "XRT", amount: "447703" },
-        weightLimit: DEST_WEIGHT,
-      },
+export const robonomicsRoutersConfig: Omit<RouteConfigs, "from">[] = [
+  {
+    to: "basilisk",
+    token: "XRT",
+    xcm: {
+      fee: { token: "XRT", amount: "447703" },
+      weightLimit: DEST_WEIGHT,
     },
-  ];
+  },
+];
 
 const robonomicsTokensConfig: Record<string, BasicToken> = {
   XRT: { name: "XRT", symbol: "XRT", decimals: 9, ed: "1000" },
@@ -62,7 +61,7 @@ class TinkernetBalanceAdapter extends BalanceAdapter {
     const storage = this.storages.balances(address);
 
     if (token !== this.nativeToken) {
-      throw new CurrencyNotFound(token);
+      throw new TokenNotFound(token);
     }
 
     return storage.observable.pipe(
@@ -82,12 +81,12 @@ class TinkernetBalanceAdapter extends BalanceAdapter {
 class RobonomicsBaseAdapter extends BaseCrossChainAdapter {
   private balanceAdapter?: TinkernetBalanceAdapter;
 
-  public override async setApi(api: AnyApi) {
+  public async init(api: AnyApi) {
     this.api = api;
 
     await api.isReady;
 
-    const chain = this.chain.id as ChainName;
+    const chain = this.chain.id as ChainId;
 
     this.balanceAdapter = new TinkernetBalanceAdapter({
       chain,
@@ -110,7 +109,7 @@ class RobonomicsBaseAdapter extends BaseCrossChainAdapter {
   public subscribeMaxInput(
     token: string,
     address: string,
-    to: ChainName
+    to: ChainId
   ): Observable<FN> {
     if (!this.balanceAdapter) {
       throw new ApiNotFound(this.chain.id);
@@ -144,7 +143,7 @@ class RobonomicsBaseAdapter extends BaseCrossChainAdapter {
   }
 
   public createTx(
-    params: CrossChainTransferParams
+    params: TransferParams
   ):
     | SubmittableExtrinsic<"promise", ISubmittableResult>
     | SubmittableExtrinsic<"rxjs", ISubmittableResult> {

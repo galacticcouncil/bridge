@@ -8,7 +8,7 @@ import { ApiProvider } from "../api-provider";
 import { chains, ChainId } from "../configs";
 import { Bridge } from "../bridge";
 import { KaruraAdapter, AcalaAdapter } from "./acala";
-import { HydraAdapter } from "./hydradx";
+import { HydradxAdapter } from "./hydradx";
 import { KusamaAdapter } from "./polkadot";
 
 describe.skip("acala-adapter should work", () => {
@@ -105,17 +105,14 @@ describe.skip("acala-adapter for erc20 token should work", () => {
 
     await connect(fromChains);
 
-    const acala = new AcalaAdapter();
-    const hydra = new HydraAdapter();
+    const acala = new AcalaAdapter("wss://acala.polkawallet.io");
+    const hydradx = new HydradxAdapter();
 
-    const api = provider.getApiPromise(fromChains[0]);
-    const evmProvider = new EvmRpcProvider("wss://acala.polkawallet.io");
-    const wallet = new Wallet(api, { evmProvider });
-    await acala.init(api, wallet);
-    await hydra.init(provider.getApiPromise(fromChains[1]));
+    await acala.init(provider.getApiPromise(fromChains[0]));
+    await hydradx.init(provider.getApiPromise(fromChains[1]));
 
     const bridge = new Bridge({
-      adapters: [acala, hydra],
+      adapters: [acala, hydradx],
     });
 
     expect(bridge.router.getDestinationChains({ from: chains.acala, token: "DAI" }).length).toEqual(1);
