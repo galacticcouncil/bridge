@@ -1,7 +1,11 @@
-import { AnyApi, FixedPointNumber as FN } from "@acala-network/sdk-core";
 import {
-  combineLatest,
+  AnyApi,
+  FixedPointNumber,
+  FixedPointNumber as FN,
+} from "@acala-network/sdk-core";
+import {
   firstValueFrom,
+  combineLatest,
   from,
   Observable,
   of,
@@ -10,41 +14,36 @@ import {
 } from "rxjs";
 import { catchError, map } from "rxjs/operators";
 
-import { ApiRx } from "@polkadot/api";
 import { SubmittableExtrinsic } from "@polkadot/api/types";
 import { ISubmittableResult } from "@polkadot/types/types";
 
-import { ChainName, chains } from "./configs";
+import { ChainId, chains } from "./configs";
+import { AdapterNotFound, RouterConfigNotFound, TokenNotFound } from "./errors";
 import {
-  AdapterNotFound,
-  RouterConfigNotFound,
-  TokenConfigNotFound,
-} from "./errors";
-import {
-  BalanceChangedStatus,
+  BalanceChangeStatue,
   BalanceData,
   BasicToken,
   Chain,
-  CrossChainBalanceChangedConfigs,
-  CrossChainInputConfigs,
-  CrossChainRouterConfigs,
-  CrossChainTransferParams,
+  BalanceChangeConfig,
+  InputConfig,
+  RouteConfigs,
+  TransferParams,
   TokenBalance,
 } from "./types";
 
 const DEFAULT_TX_CHECKING_TIMEOUT = 2 * 60 * 1000;
 
 export abstract class BaseCrossChainAdapter {
-  protected routers: Omit<CrossChainRouterConfigs, "from">[];
+  protected routers: Omit<RouteConfigs, "from">[];
   protected tokens: Record<string, BasicToken>;
   protected api?: AnyApi;
   readonly chain: Chain;
   // @ts-ignore
-  private findAdapter!: (chain: Chain | ChainName) => BaseCrossChainAdapter;
+  private findAdapter!: (chain: Chain | ChainId) => BaseCrossChainAdapter;
 
   constructor(
     chain: Chain,
-    routers: Omit<CrossChainRouterConfigs, "from">[],
+    routers: Omit<RouteConfigs, "from">[],
     tokens: Record<string, BasicToken>
   ) {
     this.chain = chain;
@@ -52,30 +51,22 @@ export abstract class BaseCrossChainAdapter {
     this.tokens = tokens;
   }
 
-  public async setApi(api: AnyApi) {
-    this.api = api;
-
-    if (this.api?.type === "rxjs") {
-      await firstValueFrom(api.isReady as Observable<ApiRx>);
-    }
-
-    await api.isReady;
-  }
+  public abstract init(api: AnyApi, ...others: any[]): Promise<void>;
 
   public getApi() {
     return this.api;
   }
 
   public injectFindAdapter(
-    func: (chain: ChainName | Chain) => BaseCrossChainAdapter
+    func: (chain: ChainId | Chain) => BaseCrossChainAdapter
   ): void {
     this.findAdapter = func;
   }
 
-  public getRouters(): CrossChainRouterConfigs[] {
+  public getRouters(): RouteConfigs[] {
     return this.routers.map((i) => ({
       ...i,
-      from: this.chain.id as ChainName,
+      from: this.chain.id as ChainId,
     }));
   }
 
@@ -83,9 +74,9 @@ export abstract class BaseCrossChainAdapter {
     return Number(this.api?.registry.chainSS58?.toString());
   }
 
-  public subscribeInputConfigs(
-    params: Omit<CrossChainTransferParams, "amount">
-  ): Observable<CrossChainInputConfigs> {
+  public subscribeInputConfig(
+    params: Omit<TransferParams, "amount">
+  ): Observable<InputConfig> {
     const { signer, to, token } = params;
 
     const destFee = this.getCrossChainFee(token, to);
@@ -115,7 +106,11 @@ export abstract class BaseCrossChainAdapter {
     );
   }
 
-  public subscribeMinInput(token: string, to: ChainName): Observable<FN> {
+  public getInputConfig(params: Omit<TransferParams, "amount">) {
+    return firstValueFrom(this.subscribeInputConfig(params));
+  }
+
+  public subscribeMinInput(token: string, to: ChainId): Observable<FN> {
     const destFee = this.getCrossChainFee(token, to);
 
     return of(
@@ -125,8 +120,17 @@ export abstract class BaseCrossChainAdapter {
     );
   }
 
-  public getToken(token: string, chain: ChainName): BasicToken {
+  public getMinInput(token: string, to: ChainId) {
+    return firstValueFrom(this.subscribeMinInput(token, to));
+  }
+
+  public getToken<R extends BasicToken = BasicToken>(
+    token: string,
+    chain?: ChainId
+  ): R {
     let tokenConfig: BasicToken;
+
+    if (!chain) return this.tokens[token] as R;
 
     if (chain === this.chain.id) {
       tokenConfig = this.tokens[token];
@@ -140,14 +144,12 @@ export abstract class BaseCrossChainAdapter {
       tokenConfig = destAdapter.tokens[token];
     }
 
-    if (!tokenConfig) {
-      throw new TokenConfigNotFound(token, chain);
-    }
+    if (!tokenConfig) throw new TokenNotFound(token, chain);
 
-    return tokenConfig;
+    return tokenConfig as R;
   }
 
-  public getDestED(token: string, destChain: ChainName): TokenBalance {
+  public getDestED(token: string, destChain: ChainId): TokenBalance {
     const tokenConfig = this.getToken(token, destChain);
 
     return {
@@ -156,7 +158,7 @@ export abstract class BaseCrossChainAdapter {
     };
   }
 
-  public getCrossChainFee(token: string, destChain: ChainName): TokenBalance {
+  public getCrossChainFee(token: string, destChain: ChainId): TokenBalance {
     const router = this.routers.find(
       (e) => e.to === destChain && e.token === token
     );
@@ -178,7 +180,7 @@ export abstract class BaseCrossChainAdapter {
 
   public getDestWeight(
     token: string,
-    destChain: ChainName
+    destChain: ChainId
   ): string | "Unlimited" | "Limited" | undefined {
     const router = this.routers.find(
       (e) => e.to === destChain && e.token === token
@@ -191,8 +193,12 @@ export abstract class BaseCrossChainAdapter {
     return router.xcm?.weightLimit;
   }
 
-  public estimateTxFee(params: CrossChainTransferParams) {
-    let tx = this.createTx({ ...params });
+  public estimateTxFee(params: TransferParams) {
+    let tx = this.createTx({
+      ...params,
+      // overwrite amount just for estimating fee
+      amount: FixedPointNumber.fromInner("1"),
+    });
 
     if (this.api?.type === "rxjs") {
       tx = tx as SubmittableExtrinsic<"rxjs", ISubmittableResult>;
@@ -200,6 +206,11 @@ export abstract class BaseCrossChainAdapter {
       return tx.paymentInfo(params.signer).pipe(
         map((feeData) => {
           return feeData.partialFee.toString();
+        }),
+        catchError((e) => {
+          console.debug(`fetch payment info failed, ${e}`);
+
+          return "0";
         })
       );
     }
@@ -216,9 +227,13 @@ export abstract class BaseCrossChainAdapter {
     );
   }
 
-  public subscribeBalanceChanged(
-    configs: CrossChainBalanceChangedConfigs
-  ): Observable<BalanceChangedStatus> {
+  public getEstimateTxFee(params: TransferParams) {
+    return firstValueFrom(this.estimateTxFee(params));
+  }
+
+  public subscribeBalanceChange(
+    configs: BalanceChangeConfig
+  ): Observable<BalanceChangeStatue> {
     const { address, amount, token, tolerance } = configs;
     // allow 1% tolerance as default
     const target = amount.mul(new FN(1 - (tolerance || 0.01)));
@@ -235,19 +250,31 @@ export abstract class BaseCrossChainAdapter {
         const diff = balance.available.minus(savedBalance);
 
         if (savedBalance && diff.gte(target)) {
-          return BalanceChangedStatus.SUCCESS;
+          return BalanceChangeStatue.SUCCESS;
         }
 
-        return BalanceChangedStatus.CHECKING;
+        return BalanceChangeStatue.CHECKING;
       }),
       catchError((e: Error) => {
         if (e instanceof TimeoutError) {
-          return of(BalanceChangedStatus.TIMEOUT);
+          return of(BalanceChangeStatue.TIMEOUT);
         }
 
-        return of(BalanceChangedStatus.UNKNOWN_ERROR);
+        return of(BalanceChangeStatue.UNKNOWN_ERROR);
       })
     );
+  }
+
+  public watchBalanceChange(
+    config: BalanceChangeConfig,
+    callback: (error?: Error, status?: BalanceChangeStatue) => void
+  ) {
+    const subscriber = this.subscribeBalanceChange(config).subscribe({
+      next: (status) => callback(undefined, status),
+      error: (e) => callback(e, undefined),
+    });
+
+    return subscriber.unsubscribe;
   }
 
   public abstract subscribeTokenBalance(
@@ -255,14 +282,22 @@ export abstract class BaseCrossChainAdapter {
     address: string
   ): Observable<BalanceData>;
 
+  public getTokenBalance(token: string, address: string): Promise<BalanceData> {
+    return firstValueFrom(this.subscribeTokenBalance(token, address));
+  }
+
   public abstract subscribeMaxInput(
     token: string,
     address: string,
-    to: ChainName
+    to: ChainId
   ): Observable<FN>;
 
+  public getMaxInput(token: string, address: string, to: ChainId): Promise<FN> {
+    return firstValueFrom(this.subscribeMaxInput(token, address, to));
+  }
+
   public abstract createTx(
-    params: CrossChainTransferParams
+    params: TransferParams
   ):
     | SubmittableExtrinsic<"promise", ISubmittableResult>
     | SubmittableExtrinsic<"rxjs", ISubmittableResult>;

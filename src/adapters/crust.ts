@@ -8,18 +8,18 @@ import { ISubmittableResult } from "@polkadot/types/types";
 
 import { BalanceAdapter, BalanceAdapterConfigs } from "../balance-adapter";
 import { BaseCrossChainAdapter } from "../base-chain-adapter";
-import { ChainName, chains } from "../configs";
-import { ApiNotFound, CurrencyNotFound } from "../errors";
+import { ChainId, chains } from "../configs";
+import { ApiNotFound, TokenNotFound } from "../errors";
 import {
   BalanceData,
   BasicToken,
-  CrossChainRouterConfigs,
-  CrossChainTransferParams,
+  RouteConfigs,
+  TransferParams,
 } from "../types";
 
 const DEST_WEIGHT = "5000000000";
 
-const shadowRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
+const shadowRoutersConfig: Omit<RouteConfigs, "from">[] = [
   {
     to: "karura",
     token: "CSM",
@@ -109,7 +109,7 @@ class CrustBalanceAdapter extends BalanceAdapter {
     const tokenId = SUPPORTED_TOKENS[token];
 
     if (tokenId === undefined) {
-      throw new CurrencyNotFound(token);
+      throw new TokenNotFound(token);
     }
 
     return this.storages.assets(tokenId, address).observable.pipe(
@@ -133,13 +133,13 @@ class CrustBalanceAdapter extends BalanceAdapter {
 class BaseCrustAdapter extends BaseCrossChainAdapter {
   private balanceAdapter?: CrustBalanceAdapter;
 
-  public override async setApi(api: AnyApi) {
+  public async init(api: AnyApi) {
     this.api = api;
 
     await api.isReady;
 
     this.balanceAdapter = new CrustBalanceAdapter({
-      chain: this.chain.id as ChainName,
+      chain: this.chain.id as ChainId,
       api,
       tokens: shadowTokensConfig,
     });
@@ -159,7 +159,7 @@ class BaseCrustAdapter extends BaseCrossChainAdapter {
   public subscribeMaxInput(
     token: string,
     address: string,
-    to: ChainName
+    to: ChainId
   ): Observable<FN> {
     if (!this.balanceAdapter) {
       throw new ApiNotFound(this.chain.id);
@@ -196,7 +196,7 @@ class BaseCrustAdapter extends BaseCrossChainAdapter {
   }
 
   public createTx(
-    params: CrossChainTransferParams
+    params: TransferParams
   ):
     | SubmittableExtrinsic<"promise", ISubmittableResult>
     | SubmittableExtrinsic<"rxjs", ISubmittableResult> {
@@ -215,7 +215,7 @@ class BaseCrustAdapter extends BaseCrossChainAdapter {
       const tokenId = SUPPORTED_TOKENS[token];
 
       if (tokenId === undefined) {
-        throw new CurrencyNotFound(token);
+        throw new TokenNotFound(token);
       } else {
         ass = { OtherReserve: tokenId };
       }

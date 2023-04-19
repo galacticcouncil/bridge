@@ -8,16 +8,16 @@ import { ISubmittableResult } from "@polkadot/types/types";
 
 import { BalanceAdapter, BalanceAdapterConfigs } from "../balance-adapter";
 import { BaseCrossChainAdapter } from "../base-chain-adapter";
-import { ChainName, chains } from "../configs";
-import { ApiNotFound, CurrencyNotFound } from "../errors";
+import { ChainId, chains } from "../configs";
+import { ApiNotFound, TokenNotFound } from "../errors";
 import {
   BalanceData,
   BasicToken,
-  CrossChainRouterConfigs,
-  CrossChainTransferParams,
+  RouteConfigs,
+  TransferParams,
 } from "../types";
 
-export const astarRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
+export const astarRoutersConfig: Omit<RouteConfigs, "from">[] = [
   {
     to: "acala",
     token: "ASTR",
@@ -52,7 +52,7 @@ export const astarRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
   },
 ];
 
-export const shidenRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
+export const shidenRoutersConfig: Omit<RouteConfigs, "from">[] = [
   {
     to: "karura",
     token: "SDN",
@@ -145,7 +145,7 @@ class AstarBalanceAdapter extends BalanceAdapter {
     const tokenId = SUPPORTED_TOKENS[token];
 
     if (tokenId === undefined) {
-      throw new CurrencyNotFound(token);
+      throw new TokenNotFound(token);
     }
 
     return this.storages.assets(tokenId, address).observable.pipe(
@@ -169,12 +169,12 @@ class AstarBalanceAdapter extends BalanceAdapter {
 class BaseAstarAdapter extends BaseCrossChainAdapter {
   private balanceAdapter?: AstarBalanceAdapter;
 
-  public override async setApi(api: AnyApi) {
+  public async init(api: AnyApi) {
     this.api = api;
 
     await api.isReady;
 
-    const chain = this.chain.id as ChainName;
+    const chain = this.chain.id as ChainId;
 
     this.balanceAdapter = new AstarBalanceAdapter({
       chain,
@@ -197,7 +197,7 @@ class BaseAstarAdapter extends BaseCrossChainAdapter {
   public subscribeMaxInput(
     token: string,
     address: string,
-    to: ChainName
+    to: ChainId
   ): Observable<FN> {
     if (!this.balanceAdapter) {
       throw new ApiNotFound(this.chain.id);
@@ -234,7 +234,7 @@ class BaseAstarAdapter extends BaseCrossChainAdapter {
   }
 
   public createTx(
-    params: CrossChainTransferParams
+    params: TransferParams
   ):
     | SubmittableExtrinsic<"promise", ISubmittableResult>
     | SubmittableExtrinsic<"rxjs", ISubmittableResult> {
@@ -283,7 +283,7 @@ class BaseAstarAdapter extends BaseCrossChainAdapter {
     const tokenId = tokenIds[token];
 
     if (tokenId === undefined) {
-      throw new CurrencyNotFound(token);
+      throw new TokenNotFound(token);
     }
 
     ass = [
@@ -300,7 +300,7 @@ class BaseAstarAdapter extends BaseCrossChainAdapter {
       },
     ];
 
-    return this.api?.tx.polkadotXcm.reserveTransferAssets(
+    return this.api?.tx.polkadotXcm.reserveWithdrawAssets(
       { V1: dst },
       { V1: acc },
       { V1: ass },

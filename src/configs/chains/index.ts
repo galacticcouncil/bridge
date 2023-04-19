@@ -9,6 +9,10 @@ export const rawChains = {
   ...rococoChains,
 };
 
-export type ChainName = keyof typeof rawChains;
+export type ChainId = keyof typeof rawChains;
 
-export const chains: Record<ChainName, Chain> = rawChains;
+export const chains = Object.fromEntries(
+  Object.entries(rawChains).map(([id, data]) => {
+    return [id, { id, ...data }];
+  })
+) as { [k in ChainId]: Chain };

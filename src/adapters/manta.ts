@@ -8,18 +8,18 @@ import { ISubmittableResult } from "@polkadot/types/types";
 
 import { BalanceAdapter, BalanceAdapterConfigs } from "../balance-adapter";
 import { BaseCrossChainAdapter } from "../base-chain-adapter";
-import { ChainName, chains } from "../configs";
-import { ApiNotFound, CurrencyNotFound } from "../errors";
+import { ChainId, chains } from "../configs";
+import { ApiNotFound, TokenNotFound } from "../errors";
 import {
   BalanceData,
   BasicToken,
-  CrossChainRouterConfigs,
-  CrossChainTransferParams,
+  RouteConfigs,
+  TransferParams,
 } from "../types";
 
 const DEST_WEIGHT = "5000000000";
 
-export const calamariRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
+export const calamariRoutersConfig: Omit<RouteConfigs, "from">[] = [
   {
     to: "karura",
     token: "KMA",
@@ -130,7 +130,7 @@ class MantaBalanceAdapter extends BalanceAdapter {
     const tokenID = SUPPORTED_TOKENS[token];
 
     if (tokenID === undefined) {
-      throw new CurrencyNotFound(token);
+      throw new TokenNotFound(token);
     }
 
     return this.storages.assets(tokenID, address).observable.pipe(
@@ -154,13 +154,13 @@ class MantaBalanceAdapter extends BalanceAdapter {
 class BaseMantaAdapter extends BaseCrossChainAdapter {
   private balanceAdapter?: MantaBalanceAdapter;
 
-  public override async setApi(api: AnyApi) {
+  public async init(api: AnyApi) {
     this.api = api;
 
     await api.isReady;
 
     this.balanceAdapter = new MantaBalanceAdapter({
-      chain: this.chain.id as ChainName,
+      chain: this.chain.id as ChainId,
       api,
       tokens: calamariTokensConfig,
     });
@@ -180,7 +180,7 @@ class BaseMantaAdapter extends BaseCrossChainAdapter {
   public subscribeMaxInput(
     token: string,
     address: string,
-    to: ChainName
+    to: ChainId
   ): Observable<FN> {
     if (!this.balanceAdapter) {
       throw new ApiNotFound(this.chain.id);
@@ -217,7 +217,7 @@ class BaseMantaAdapter extends BaseCrossChainAdapter {
   }
 
   public createTx(
-    params: CrossChainTransferParams
+    params: TransferParams
   ):
     | SubmittableExtrinsic<"promise", ISubmittableResult>
     | SubmittableExtrinsic<"rxjs", ISubmittableResult> {
@@ -233,7 +233,7 @@ class BaseMantaAdapter extends BaseCrossChainAdapter {
     const tokenId = SUPPORTED_TOKENS[token];
 
     if (tokenId === undefined) {
-      throw new CurrencyNotFound(token);
+      throw new TokenNotFound(token);
     }
 
     return this.api?.tx.xTokens.transfer(

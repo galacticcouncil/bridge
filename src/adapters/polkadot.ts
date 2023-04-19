@@ -8,16 +8,16 @@ import { ISubmittableResult } from "@polkadot/types/types";
 
 import { BalanceAdapter, BalanceAdapterConfigs } from "../balance-adapter";
 import { BaseCrossChainAdapter } from "../base-chain-adapter";
-import { ChainName, chains } from "../configs";
-import { ApiNotFound, CurrencyNotFound } from "../errors";
+import { ChainId, chains } from "../configs";
+import { ApiNotFound, TokenNotFound } from "../errors";
 import {
   BalanceData,
   BasicToken,
-  CrossChainRouterConfigs,
-  CrossChainTransferParams,
+  RouteConfigs,
+  TransferParams,
 } from "../types";
 
-export const polkadotRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
+export const polkadotRoutersConfig: Omit<RouteConfigs, "from">[] = [
   {
     to: "acala",
     token: "DOT",
@@ -40,7 +40,9 @@ export const polkadotRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     },
   },
 ];
-export const kusamaRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
+
+// TODO: should remove after kusama upgrade
+export const kusamaRoutersConfig: Omit<RouteConfigs, "from">[] = [
   {
     to: "karura",
     token: "KSM",
@@ -61,12 +63,39 @@ export const kusamaRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
     to: "statemine",
     token: "KSM",
     xcm: {
-      fee: { token: "KSM", amount: "4000000000" },
+      fee: { token: "KSM", amount: "5275240" },
       weightLimit: "Unlimited",
     },
   },
 ];
-export const rococoRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
+
+export const V3KusamaRoutersConfig: Omit<RouteConfigs, "from">[] = [
+  {
+    to: "karura",
+    token: "KSM",
+    xcm: {
+      fee: { token: "KSM", amount: "44163610" },
+      weightLimit: "Unlimited",
+    },
+  },
+  {
+    to: "basilisk",
+    token: "KSM",
+    xcm: {
+      fee: { token: "KSM", amount: "72711796" },
+      weightLimit: "Unlimited",
+    },
+  },
+  {
+    to: "statemine",
+    token: "KSM",
+    xcm: {
+      fee: { token: "KSM", amount: "34368318" },
+      weightLimit: "Unlimited",
+    },
+  },
+];
+export const rococoRoutersConfig: Omit<RouteConfigs, "from">[] = [
   {
     to: "karura",
     token: "ROC",
@@ -125,7 +154,7 @@ class PolkadotBalanceAdapter extends BalanceAdapter {
     const storage = this.storages.balances(address);
 
     if (token !== this.nativeToken) {
-      throw new CurrencyNotFound(token);
+      throw new TokenNotFound(token);
     }
 
     return storage.observable.pipe(
@@ -145,18 +174,24 @@ class PolkadotBalanceAdapter extends BalanceAdapter {
 class BasePolkadotAdapter extends BaseCrossChainAdapter {
   private balanceAdapter?: PolkadotBalanceAdapter;
 
-  public override async setApi(api: AnyApi) {
+  public async init(api: AnyApi) {
     this.api = api;
 
     await api.isReady;
 
-    const chain = this.chain.id as ChainName;
+    const chain = this.chain.id as ChainId;
 
     this.balanceAdapter = new PolkadotBalanceAdapter({
       chain,
       api,
       tokens: polkadotTokensConfig[chain],
     });
+
+    // TODO: should remove after kusama upgrade
+    // update routers config when the chain is not support V0, V1 xcm message
+    if (!this.isV0V1 && chain === "kusama") {
+      this.routers = V3KusamaRoutersConfig;
+    }
   }
 
   public subscribeTokenBalance(
@@ -173,7 +208,7 @@ class BasePolkadotAdapter extends BaseCrossChainAdapter {
   public subscribeMaxInput(
     token: string,
     address: string,
-    to: ChainName
+    to: ChainId
   ): Observable<FN> {
     if (!this.balanceAdapter) {
       throw new ApiNotFound(this.chain.id);
@@ -206,8 +241,22 @@ class BasePolkadotAdapter extends BaseCrossChainAdapter {
     );
   }
 
+  // TODO: should remove after kusama upgrade
+  private get isV0V1() {
+    try {
+      const keys = (this.api?.createType("XcmVersionedMultiLocation") as any)
+        .defKeys as string[];
+
+      return keys.includes("V0");
+    } catch (e) {
+      // ignore error
+    }
+
+    return false;
+  }
+
   public createTx(
-    params: CrossChainTransferParams
+    params: TransferParams
   ):
     | SubmittableExtrinsic<"promise", ISubmittableResult>
     | SubmittableExtrinsic<"rxjs", ISubmittableResult> {
@@ -219,9 +268,10 @@ class BasePolkadotAdapter extends BaseCrossChainAdapter {
     const toChain = chains[to];
 
     if (token !== this.balanceAdapter?.nativeToken) {
-      throw new CurrencyNotFound(token);
+      throw new TokenNotFound(token);
     }
 
+    const isV0V1Support = this.isV0V1;
     const accountId = this.api?.createType("AccountId32", address).toHex();
 
     // to statemine
@@ -231,7 +281,14 @@ class BasePolkadotAdapter extends BaseCrossChainAdapter {
         parents: 0,
       };
       const acc = {
-        interior: { X1: { AccountId32: { id: accountId, network: "Any" } } },
+        interior: {
+          X1: {
+            AccountId32: {
+              id: accountId,
+              network: isV0V1Support ? "Any" : undefined,
+            },
+          },
+        },
         parents: 0,
       };
       const ass = [
@@ -242,16 +299,16 @@ class BasePolkadotAdapter extends BaseCrossChainAdapter {
       ];
 
       return this.api?.tx.xcmPallet.limitedTeleportAssets(
-        { V1: dst },
-        { V1: acc },
-        { V1: ass },
+        { [isV0V1Support ? "V1" : "V3"]: dst },
+        { [isV0V1Support ? "V1" : "V3"]: acc },
+        { [isV0V1Support ? "V1" : "V3"]: ass },
         0,
         "Unlimited"
       );
     }
 
-    // to karura/acala
-    if (to === "acala" || to === "karura") {
+    // to acala or karura which is support V0/V1 (old version)
+    if ((to === "acala" || to === "karura") && isV0V1Support) {
       const dst = { X1: { Parachain: toChain.paraChainId } };
       const acc = { X1: { AccountId32: { id: accountId, network: "Any" } } };
       const ass = [{ ConcreteFungible: { amount: amount.toChainData() } }];
@@ -264,18 +321,44 @@ class BasePolkadotAdapter extends BaseCrossChainAdapter {
       );
     }
 
-    // to other parachain
-    const dst = { X1: { Parachain: toChain.paraChainId } };
-    const acc = { X1: { AccountId32: { id: accountId, network: "Any" } } };
-    const ass = [{ ConcreteFungible: { amount: amount.toChainData() } }];
+    if (isV0V1Support) {
+      const dst = { X1: { Parachain: toChain.paraChainId } };
+      const acc = { X1: { AccountId32: { id: accountId, network: "Any" } } };
+      const ass = [{ ConcreteFungible: { amount: amount.toChainData() } }];
 
-    return this.api?.tx.xcmPallet.limitedReserveTransferAssets(
-      { V0: dst },
-      { V0: acc },
-      { V0: ass },
-      0,
-      this.getDestWeight(token, to)?.toString()
-    );
+      return this.api?.tx.xcmPallet.limitedReserveTransferAssets(
+        { V0: dst },
+        { V0: acc },
+        { V0: ass },
+        0,
+        this.getDestWeight(token, to)?.toString()
+      );
+    } else {
+      const dst = {
+        parents: 0,
+        interior: { X1: { Parachain: toChain.paraChainId } },
+      };
+      const acc = {
+        parents: 0,
+        interior: {
+          X1: { AccountId32: { id: accountId } },
+        },
+      };
+      const ass = [
+        {
+          id: { Concrete: { parents: 0, interior: "Here" } },
+          fun: { Fungible: amount.toChainData() },
+        },
+      ];
+
+      return this.api?.tx.xcmPallet.limitedReserveTransferAssets(
+        { V3: dst },
+        { V3: acc },
+        { V3: ass },
+        0,
+        this.getDestWeight(token, to)?.toString()
+      );
+    }
   }
 }
 

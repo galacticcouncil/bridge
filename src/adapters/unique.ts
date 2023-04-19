@@ -8,16 +8,31 @@ import { ISubmittableResult } from "@polkadot/types/types";
 
 import { BalanceAdapter, BalanceAdapterConfigs } from "../balance-adapter";
 import { BaseCrossChainAdapter } from "../base-chain-adapter";
-import { ChainName, chains } from "../configs";
-import { ApiNotFound, CurrencyNotFound } from "../errors";
+import { ChainId, chains } from "../configs";
+import { ApiNotFound, TokenNotFound } from "../errors";
 import {
   BalanceData,
   BasicToken,
-  CrossChainRouterConfigs,
-  CrossChainTransferParams,
+  RouteConfigs,
+  TransferParams,
 } from "../types";
 
-export const quartzRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
+export const uniqueRoutersConfig: Omit<RouteConfigs, "from">[] = [
+  {
+    to: "acala",
+    token: "UNQ",
+    xcm: {
+      fee: { token: "UNQ", amount: "101030000000000000" },
+      weightLimit: "Unlimited",
+    },
+  },
+];
+
+export const uniqueTokensConfig: Record<string, BasicToken> = {
+  UNQ: { name: "UNQ", symbol: "UNQ", decimals: 18, ed: "0" },
+};
+
+export const quartzRoutersConfig: Omit<RouteConfigs, "from">[] = [
   {
     to: "karura",
     token: "QTZ",
@@ -59,7 +74,7 @@ class UniqueBalanceAdapter extends BalanceAdapter {
     const storage = this.storages.balances(address);
 
     if (token !== this.nativeToken) {
-      throw new CurrencyNotFound(token);
+      throw new TokenNotFound(token);
     }
 
     return storage.observable.pipe(
@@ -79,15 +94,15 @@ class UniqueBalanceAdapter extends BalanceAdapter {
 class BaseUniqueAdapter extends BaseCrossChainAdapter {
   private balanceAdapter?: UniqueBalanceAdapter;
 
-  public override async setApi(api: AnyApi) {
+  public async init(api: AnyApi) {
     this.api = api;
 
     await api.isReady;
 
     this.balanceAdapter = new UniqueBalanceAdapter({
-      chain: this.chain.id as ChainName,
+      chain: this.chain.id as ChainId,
       api,
-      tokens: quartzTokensConfig,
+      tokens: this.tokens,
     });
   }
 
@@ -105,7 +120,7 @@ class BaseUniqueAdapter extends BaseCrossChainAdapter {
   public subscribeMaxInput(
     token: string,
     address: string,
-    to: ChainName
+    to: ChainId
   ): Observable<FN> {
     if (!this.balanceAdapter) {
       throw new ApiNotFound(this.chain.id);
@@ -142,7 +157,7 @@ class BaseUniqueAdapter extends BaseCrossChainAdapter {
   }
 
   public createTx(
-    params: CrossChainTransferParams
+    params: TransferParams
   ):
     | SubmittableExtrinsic<"promise", ISubmittableResult>
     | SubmittableExtrinsic<"rxjs", ISubmittableResult> {
@@ -154,7 +169,7 @@ class BaseUniqueAdapter extends BaseCrossChainAdapter {
     const toChain = chains[to];
 
     if (token !== this.balanceAdapter?.nativeToken) {
-      throw new CurrencyNotFound(token);
+      throw new TokenNotFound(token);
     }
 
     const accountId = this.api?.createType("AccountId32", address).toHex();
@@ -176,5 +191,11 @@ class BaseUniqueAdapter extends BaseCrossChainAdapter {
 export class QuartzAdapter extends BaseUniqueAdapter {
   constructor() {
     super(chains.quartz, quartzRoutersConfig, quartzTokensConfig);
+  }
+}
+
+export class UniqueAdapter extends BaseUniqueAdapter {
+  constructor() {
+    super(chains.unique, uniqueRoutersConfig, uniqueTokensConfig);
   }
 }

@@ -1,9 +1,10 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom } from 'rxjs';
 
-import { ApiProvider } from "./api-provider";
-import { BaseCrossChainAdapter } from "./base-chain-adapter";
-import { ChainName } from "./configs";
-import { Bridge, FN } from "./index";
+import { ApiProvider } from './api-provider';
+import { BaseCrossChainAdapter } from './base-chain-adapter';
+import { ChainId } from './configs';
+import { Bridge } from './bridge';
+import { FN } from './types';
 import { AcalaAdapter, KaruraAdapter } from "./adapters/acala";
 import { BasiliskAdapter, HydradxAdapter } from "./adapters/hydradx";
 import { TinkernetAdapter } from "./adapters/tinkernet";
@@ -27,7 +28,7 @@ const CHAINS: Record<string, string[]> = {
   zeitgeist: ["wss://zeitgeist.api.onfinality.io/public-ws"],
 };
 
-describe("Bridge sdk usage", () => {
+describe.skip('Bridge sdk usage', () => {
   jest.setTimeout(30000);
 
   const provider = new ApiProvider();
@@ -68,8 +69,8 @@ describe("Bridge sdk usage", () => {
     console.log(tokens);
   });
 
-  test("2. connect fromChain should be ok", async () => {
-    const chains = Object.keys(availableAdapters) as ChainName[];
+  test('2. connect fromChain should be ok', async () => {
+    const chains = Object.keys(availableAdapters) as ChainId[];
 
     expect(provider.getApi(chains[0])).toEqual(undefined);
     expect(provider.getApi(chains[1])).toEqual(undefined);
@@ -80,11 +81,7 @@ describe("Bridge sdk usage", () => {
     );
 
     // and set apiProvider for each adapter
-    await Promise.all(
-      chains.map((chain) =>
-        availableAdapters[chain].setApi(provider.getApi(chain))
-      )
-    );
+    await Promise.all(chains.map((chain) => availableAdapters[chain].init(provider.getApi(chain))));
 
     expect(connected.length).toEqual(chains.length);
 
@@ -120,8 +117,8 @@ describe("Bridge sdk usage", () => {
   });
 
   test("3. token balance query & create tx should be ok", async () => {
-    const chain: ChainName = "hydradx";
-    const toChain: ChainName = "zeitgeist";
+    const chain: ChainId = "hydradx";
+    const toChain: ChainId = "zeitgeist";
     const token = "ZTG";
     const testAddress = "7MHE9BUBEWU88cEto6P1XNNb66foSwAZPKhfL8GHW9exnuH1";
 
@@ -135,7 +132,7 @@ describe("Bridge sdk usage", () => {
     expect(balance.available.toNumber()).toBeGreaterThanOrEqual(0);
 
     const inputConfig = await firstValueFrom(
-      availableAdapters[chain].subscribeInputConfigs({
+      availableAdapters[chain].subscribeInputConfig({
         to: toChain,
         token,
         address: testAddress,

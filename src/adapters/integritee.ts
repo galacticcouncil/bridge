@@ -8,26 +8,25 @@ import { ISubmittableResult } from "@polkadot/types/types";
 
 import { BalanceAdapter, BalanceAdapterConfigs } from "../balance-adapter";
 import { BaseCrossChainAdapter } from "../base-chain-adapter";
-import { ChainName, chains } from "../configs";
-import { ApiNotFound, CurrencyNotFound } from "../errors";
+import { ChainId, chains } from "../configs";
+import { ApiNotFound, TokenNotFound } from "../errors";
 import {
   BalanceData,
   BasicToken,
-  CrossChainRouterConfigs,
-  CrossChainTransferParams,
+  RouteConfigs,
+  TransferParams,
 } from "../types";
 
-export const integriteeRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] =
-  [
-    {
-      to: "karura",
-      token: "TEER",
-      xcm: {
-        fee: { token: "TEER", amount: "6400000000" },
-        weightLimit: "5000000000",
-      },
+export const integriteeRoutersConfig: Omit<RouteConfigs, "from">[] = [
+  {
+    to: "karura",
+    token: "TEER",
+    xcm: {
+      fee: { token: "TEER", amount: "6400000000" },
+      weightLimit: "5000000000",
     },
-  ];
+  },
+];
 
 export const integriteeTokensConfig: Record<string, BasicToken> = {
   TEER: { name: "TEER", symbol: "TEER", decimals: 12, ed: "100000000000" },
@@ -60,7 +59,7 @@ class IntegriteeBalanceAdapter extends BalanceAdapter {
     const storage = this.storages.balances(address);
 
     if (token !== this.nativeToken) {
-      throw new CurrencyNotFound(token);
+      throw new TokenNotFound(token);
     }
 
     return storage.observable.pipe(
@@ -80,13 +79,13 @@ class IntegriteeBalanceAdapter extends BalanceAdapter {
 class BaseIntegriteeAdapter extends BaseCrossChainAdapter {
   private balanceAdapter?: IntegriteeBalanceAdapter;
 
-  public override async setApi(api: AnyApi) {
+  public async init(api: AnyApi) {
     this.api = api;
 
     await api.isReady;
 
     this.balanceAdapter = new IntegriteeBalanceAdapter({
-      chain: this.chain.id as ChainName,
+      chain: this.chain.id as ChainId,
       api,
       tokens: integriteeTokensConfig,
     });
@@ -106,7 +105,7 @@ class BaseIntegriteeAdapter extends BaseCrossChainAdapter {
   public subscribeMaxInput(
     token: string,
     address: string,
-    to: ChainName
+    to: ChainId
   ): Observable<FN> {
     if (!this.balanceAdapter) {
       throw new ApiNotFound(this.chain.id);
@@ -143,7 +142,7 @@ class BaseIntegriteeAdapter extends BaseCrossChainAdapter {
   }
 
   public createTx(
-    params: CrossChainTransferParams
+    params: TransferParams
   ):
     | SubmittableExtrinsic<"promise", ISubmittableResult>
     | SubmittableExtrinsic<"rxjs", ISubmittableResult> {
@@ -155,6 +154,13 @@ class BaseIntegriteeAdapter extends BaseCrossChainAdapter {
     const toChain = chains[to];
 
     const accountId = this.api?.createType("AccountId32", address).toHex();
+
+    const useNewDestWeight =
+      this.api.tx.xTokens.transfer.meta.args[3].type.toString() ===
+      "XcmV2WeightLimit";
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const oldDestWeight = this.getDestWeight(token, to)!.toString();
+    const destWeight = useNewDestWeight ? "Unlimited" : oldDestWeight;
 
     return this.api?.tx.xTokens.transfer(
       token,
@@ -171,7 +177,7 @@ class BaseIntegriteeAdapter extends BaseCrossChainAdapter {
         },
       },
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.getDestWeight(token, to)!
+      destWeight
     );
   }
 }

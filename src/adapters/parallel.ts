@@ -8,18 +8,18 @@ import { ISubmittableResult } from "@polkadot/types/types";
 
 import { BalanceAdapter, BalanceAdapterConfigs } from "../balance-adapter";
 import { BaseCrossChainAdapter } from "../base-chain-adapter";
-import { ChainName, chains } from "../configs";
-import { ApiNotFound, CurrencyNotFound } from "../errors";
+import { ChainId, chains } from "../configs";
+import { ApiNotFound, TokenNotFound } from "../errors";
 import {
   BalanceData,
   BasicToken,
-  CrossChainRouterConfigs,
-  CrossChainTransferParams,
+  RouteConfigs,
+  TransferParams,
 } from "../types";
 
-const DEST_WEIGHT = "5000000000";
+const DEST_WEIGHT = "Unlimited";
 
-export const parallelRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
+export const parallelRoutersConfig: Omit<RouteConfigs, "from">[] = [
   {
     to: "acala",
     token: "PARA",
@@ -54,7 +54,7 @@ export const parallelRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
   },
 ];
 
-export const heikoRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
+export const heikoRoutersConfig: Omit<RouteConfigs, "from">[] = [
   {
     to: "karura",
     token: "HKO",
@@ -170,7 +170,7 @@ class ParallelBalanceAdapter extends BalanceAdapter {
     const tokenId = SUPPORTED_TOKENS[token];
 
     if (tokenId === undefined) {
-      throw new CurrencyNotFound(token);
+      throw new TokenNotFound(token);
     }
 
     return this.storages.assets(tokenId, address).observable.pipe(
@@ -194,12 +194,12 @@ class ParallelBalanceAdapter extends BalanceAdapter {
 class BaseParallelAdapter extends BaseCrossChainAdapter {
   private balanceAdapter?: ParallelBalanceAdapter;
 
-  public override async setApi(api: AnyApi) {
+  public async init(api: AnyApi) {
     this.api = api;
 
     await api.isReady;
 
-    const chain = this.chain.id as ChainName;
+    const chain = this.chain.id as ChainId;
 
     this.balanceAdapter = new ParallelBalanceAdapter({
       chain,
@@ -222,7 +222,7 @@ class BaseParallelAdapter extends BaseCrossChainAdapter {
   public subscribeMaxInput(
     token: string,
     address: string,
-    to: ChainName
+    to: ChainId
   ): Observable<FN> {
     if (!this.balanceAdapter) {
       throw new ApiNotFound(this.chain.id);
@@ -259,7 +259,7 @@ class BaseParallelAdapter extends BaseCrossChainAdapter {
   }
 
   public createTx(
-    params: CrossChainTransferParams
+    params: TransferParams
   ):
     | SubmittableExtrinsic<"promise", ISubmittableResult>
     | SubmittableExtrinsic<"rxjs", ISubmittableResult> {
@@ -275,8 +275,15 @@ class BaseParallelAdapter extends BaseCrossChainAdapter {
     const tokenId = SUPPORTED_TOKENS[token];
 
     if (tokenId === undefined) {
-      throw new CurrencyNotFound(token);
+      throw new TokenNotFound(token);
     }
+
+    const useNewDestWeight =
+      this.api.tx.xTokens.transfer.meta.args[3].type.toString() ===
+      "XcmV2WeightLimit";
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const oldDestWeight = this.getDestWeight(token, to)!.toString();
+    const destWeight = useNewDestWeight ? "Unlimited" : oldDestWeight;
 
     return this.api.tx.xTokens.transfer(
       tokenId,
@@ -293,7 +300,7 @@ class BaseParallelAdapter extends BaseCrossChainAdapter {
         },
       },
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.getDestWeight(token, to)!.toString()
+      destWeight
     );
   }
 }

@@ -8,23 +8,23 @@ import { ISubmittableResult } from "@polkadot/types/types";
 
 import { BalanceAdapter, BalanceAdapterConfigs } from "../balance-adapter";
 import { BaseCrossChainAdapter } from "../base-chain-adapter";
-import { ChainName, chains } from "../configs";
-import { ApiNotFound, CurrencyNotFound } from "../errors";
+import { ChainId, chains } from "../configs";
+import { ApiNotFound } from "../errors";
 import {
   BalanceData,
-  BasicToken,
-  CrossChainRouterConfigs,
-  CrossChainTransferParams,
+  ExpandToken,
+  RouteConfigs,
+  TransferParams,
 } from "../types";
 
-const DEST_WEIGHT = "5000000000";
+const DEST_WEIGHT = "Unlimited";
 
-const altairRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
+const altairRoutersConfig: Omit<RouteConfigs, "from">[] = [
   {
     to: "karura",
     token: "AIR",
     xcm: {
-      fee: { token: "AIR", amount: "6400000000000000" },
+      fee: { token: "AIR", amount: "8082400000000000" },
       weightLimit: DEST_WEIGHT,
     },
   },
@@ -38,13 +38,21 @@ const altairRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
   },
 ];
 
-export const altairTokensConfig: Record<string, BasicToken> = {
-  AIR: { name: "AIR", symbol: "AIR", decimals: 18, ed: "1000000000000" },
-  KUSD: { name: "KUSD", symbol: "KUSD", decimals: 12, ed: "100000000000" },
-};
-
-const SUPPORTED_TOKENS: Record<string, string> = {
-  KUSD: "KUSD",
+export const altairTokensConfig: Record<string, ExpandToken> = {
+  AIR: {
+    name: "AIR",
+    symbol: "AIR",
+    decimals: 18,
+    ed: "1000000000000",
+    toChainData: () => "Native",
+  },
+  KUSD: {
+    name: "KUSD",
+    symbol: "KUSD",
+    decimals: 12,
+    ed: "100000000000",
+    toChainData: () => "AUSD",
+  },
 };
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -74,12 +82,12 @@ class CentrifugeBalanceAdapter extends BalanceAdapter {
   }
 
   public subscribeBalance(
-    token: string,
+    name: string,
     address: string
   ): Observable<BalanceData> {
     const storage = this.storages.balances(address);
 
-    if (token === this.nativeToken) {
+    if (name === this.nativeToken) {
       return storage.observable.pipe(
         map((data) => ({
           free: FN.fromInner(data.freeBalance.toString(), this.decimals),
@@ -96,17 +104,13 @@ class CentrifugeBalanceAdapter extends BalanceAdapter {
       );
     }
 
-    const tokenId = SUPPORTED_TOKENS[token];
+    const token = this.getToken<ExpandToken>(name);
 
-    if (tokenId === undefined) {
-      throw new CurrencyNotFound(token);
-    }
-
-    return this.storages.assets(address, tokenId).observable.pipe(
+    return this.storages.assets(address, token.toChainData()).observable.pipe(
       map((balance) => {
         const amount = FN.fromInner(
           balance.free?.toString() || "0",
-          this.getToken(tokenId).decimals
+          token.decimals
         );
 
         return {
@@ -123,15 +127,15 @@ class CentrifugeBalanceAdapter extends BalanceAdapter {
 class BaseCentrifugeAdapter extends BaseCrossChainAdapter {
   private balanceAdapter?: CentrifugeBalanceAdapter;
 
-  public override async setApi(api: AnyApi) {
+  public async init(api: AnyApi) {
     this.api = api;
 
     await api.isReady;
 
     this.balanceAdapter = new CentrifugeBalanceAdapter({
-      chain: this.chain.id as ChainName,
+      chain: this.chain.id as ChainId,
       api,
-      tokens: altairTokensConfig,
+      tokens: this.tokens,
     });
   }
 
@@ -149,7 +153,7 @@ class BaseCentrifugeAdapter extends BaseCrossChainAdapter {
   public subscribeMaxInput(
     token: string,
     address: string,
-    to: ChainName
+    to: ChainId
   ): Observable<FN> {
     if (!this.balanceAdapter) {
       throw new ApiNotFound(this.chain.id);
@@ -186,7 +190,7 @@ class BaseCentrifugeAdapter extends BaseCrossChainAdapter {
   }
 
   public createTx(
-    params: CrossChainTransferParams
+    params: TransferParams
   ):
     | SubmittableExtrinsic<"promise", ISubmittableResult>
     | SubmittableExtrinsic<"rxjs", ISubmittableResult> {
@@ -194,19 +198,15 @@ class BaseCentrifugeAdapter extends BaseCrossChainAdapter {
       throw new ApiNotFound(this.chain.id);
     }
 
-    const { address, amount, to, token } = params;
+    const { address, amount, to, token: tokenName } = params;
     const toChain = chains[to];
 
     const accountId = this.api?.createType("AccountId32", address).toHex();
 
-    const tokenId = SUPPORTED_TOKENS[token];
-
-    if (!tokenId && token !== this.balanceAdapter?.nativeToken) {
-      throw new CurrencyNotFound(token);
-    }
+    const token = this.getToken<ExpandToken>(tokenName);
 
     return this.api?.tx.xTokens.transfer(
-      token === this.balanceAdapter?.nativeToken ? "Native" : tokenId,
+      token.toChainData(),
       amount.toChainData(),
       {
         V1: {
@@ -219,8 +219,7 @@ class BaseCentrifugeAdapter extends BaseCrossChainAdapter {
           },
         },
       },
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.getDestWeight(token, to)!.toString()
+      DEST_WEIGHT
     );
   }
 }

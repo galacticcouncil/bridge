@@ -8,18 +8,18 @@ import { ISubmittableResult } from "@polkadot/types/types";
 
 import { BalanceAdapter, BalanceAdapterConfigs } from "../balance-adapter";
 import { BaseCrossChainAdapter } from "../base-chain-adapter";
-import { ChainName, chains } from "../configs";
-import { ApiNotFound, CurrencyNotFound } from "../errors";
+import { ChainId, chains } from "../configs";
+import { ApiNotFound, TokenNotFound } from "../errors";
 import {
   BalanceData,
   BasicToken,
-  CrossChainRouterConfigs,
-  CrossChainTransferParams,
+  RouteConfigs,
+  TransferParams,
 } from "../types";
 
 const DEST_WEIGHT = "5000000000";
 
-export const khalaRoutersConfig: Omit<CrossChainRouterConfigs, "from">[] = [
+export const khalaRoutersConfig: Omit<RouteConfigs, "from">[] = [
   {
     to: "karura",
     token: "PHA",
@@ -108,7 +108,7 @@ class PhalaBalanceAdapter extends BalanceAdapter {
     const tokenId = SUPPORTED_TOKENS[token];
 
     if (tokenId === undefined) {
-      throw new CurrencyNotFound(token);
+      throw new TokenNotFound(token);
     }
 
     return this.storages.assets(tokenId, address).observable.pipe(
@@ -132,13 +132,13 @@ class PhalaBalanceAdapter extends BalanceAdapter {
 class BasePhalaAdapter extends BaseCrossChainAdapter {
   private balanceAdapter?: PhalaBalanceAdapter;
 
-  public override async setApi(api: AnyApi) {
+  public async init(api: AnyApi) {
     this.api = api;
 
     await api.isReady;
 
     this.balanceAdapter = new PhalaBalanceAdapter({
-      chain: this.chain.id as ChainName,
+      chain: this.chain.id as ChainId,
       api,
       tokens: khalaTokensConfig,
     });
@@ -158,7 +158,7 @@ class BasePhalaAdapter extends BaseCrossChainAdapter {
   public subscribeMaxInput(
     token: string,
     address: string,
-    to: ChainName
+    to: ChainId
   ): Observable<FN> {
     if (!this.balanceAdapter) {
       throw new ApiNotFound(this.chain.id);
@@ -195,7 +195,7 @@ class BasePhalaAdapter extends BaseCrossChainAdapter {
   }
 
   public createTx(
-    params: CrossChainTransferParams
+    params: TransferParams
   ):
     | SubmittableExtrinsic<"promise", ISubmittableResult>
     | SubmittableExtrinsic<"rxjs", ISubmittableResult> {
@@ -231,7 +231,7 @@ class BasePhalaAdapter extends BaseCrossChainAdapter {
       const tokenId = tokenIds[token];
 
       if (tokenId === undefined) {
-        throw new CurrencyNotFound(token);
+        throw new TokenNotFound(token);
       }
 
       asset = {

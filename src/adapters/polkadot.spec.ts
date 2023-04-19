@@ -2,8 +2,8 @@ import { FixedPointNumber } from '@acala-network/sdk-core';
 import { firstValueFrom } from 'rxjs';
 
 import { ApiProvider } from '../api-provider';
-import { chains, ChainName } from '../configs';
-import { Bridge } from '..';
+import { chains, ChainId } from '../configs';
+import { Bridge } from '../bridge';
 import { KusamaAdapter } from './polkadot';
 
 describe.skip('polkadot-adapter should work', () => {
@@ -12,7 +12,7 @@ describe.skip('polkadot-adapter should work', () => {
   const testAccount = '5GREeQcGHt7na341Py6Y6Grr38KUYRvVoiFSiDB52Gt7VZiN';
   const provider = new ApiProvider();
 
-  async function connect (chain: ChainName) {
+  async function connect (chain: ChainId) {
     return firstValueFrom(provider.connectFromChain([chain], undefined));
   }
 
@@ -23,7 +23,7 @@ describe.skip('polkadot-adapter should work', () => {
 
     const kusama = new KusamaAdapter();
 
-    await kusama.setApi(provider.getApi(fromChain));
+    await kusama.init(provider.getApi(fromChain));
 
     const bridge = new Bridge({
       adapters: [kusama]
@@ -41,7 +41,7 @@ describe.skip('polkadot-adapter should work', () => {
       expect(balance.free.toNumber()).toBeGreaterThanOrEqual(balance.available.toNumber());
       expect(balance.free.toNumber()).toEqual(balance.locked.add(balance.available).toNumber());
 
-      const inputConfig = await firstValueFrom(kusamaAdapter.subscribeInputConfigs({ to: 'karura', token: 'KSM', address: testAccount, signer: testAccount }));
+      const inputConfig = await firstValueFrom(kusamaAdapter.subscribeInputConfig({ to: 'karura', token: 'KSM', address: testAccount, signer: testAccount }));
 
       console.log(
         `inputConfig: min-${inputConfig.minInput.toNumber()} max-${inputConfig.maxInput.toNumber()} ss58-${inputConfig.ss58Prefix}`

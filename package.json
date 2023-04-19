@@ -1,7 +1,7 @@
 {
   "name": "@galacticcouncil/bridge",
-  "version": "0.0.1-rc49",
-  "description": "polkawallet bridge sdk v0.0.5-10",
+  "version": "0.0.2-rc0",
+  "description": "Build upon polkawallet bridge sdk v0.0.6-15",
   "main": "index.js",
   "types": "index.d.ts",
   "author": "Polkawallet developers <hello@polkawallet.io>",
@@ -26,32 +26,28 @@
     "package:prod": "yarn cleanup && yarn lint && yarn build && yarn package:cp"
   },
   "peerDependencies": {
-    "@polkadot/api": ">9"
+    "@polkadot/api": "9.x || 10.x"
   },
   "resolutions": {
     "rxjs": "^7.5.7"
   },
   "dependencies": {
-    "@acala-network/api": "4.1.8-9",
-    "@acala-network/sdk": "4.1.8-9",
-    "@acala-network/sdk-core": "4.1.8-9",
-    "@polkadot/api": "^9.9.1",
-    "@polkadot/api-derive": "^9.9.1",
-    "@polkadot/apps-config": "^0.116.1",
-    "@polkadot/types": "^9.9.1",
-    "@polkadot/types-augment": "^9.9.1",
-    "axios": "^0.27.2",
-    "lodash": "^4.17.20"
+    "@acala-network/api": "^4.1.8-14",
+    "@acala-network/sdk": "^4.1.8-14",
+    "@acala-network/sdk-core": "^4.1.8-14",
+    "@polkadot/apps-config": "^0.127.1"
   },
   "devDependencies": {
+    "@acala-network/eth-providers": "^2.6.5",
     "@open-web3/dev-config": "^0.2.3",
+    "@polkadot/api": "^9.14.2",
+    "@polkadot/types": "^9.14.2",
     "@types/jest": "^28.1.1",
     "@types/lodash": "^4.14.161",
-    "es-jest": "^2.0.0",
-    "esbuild": "^0.14.53",
     "eslint-plugin-unused-imports": "^2.0.0",
+    "jest": "^28.1.1",
     "ts-jest": "^28.0.8",
     "typescript": "^4.7.4"
   },
-  "stableVersion": "0.0.5-9"
+  "stableVersion": "0.0.6-14"
 }
