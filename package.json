@@ -18,7 +18,7 @@
   "scripts": {
     "build": "tsc",
     "build-es": "node ./esbuild.mjs && tsc --emitDeclarationOnly --outDir dist/types/",
-    "test": "jest",
+    "test": "jest --forceExit",
     "cleanup": "rm -rf ./build",
     "lint": "polkadot-dev-run-lint",
     "build:release": "polkadot-ci-ghact-build",
@@ -44,6 +44,7 @@
     "@polkadot/types": "^9.14.2",
     "@types/jest": "^28.1.1",
     "@types/lodash": "^4.14.161",
+    "es-jest": "^2.0.0",
     "eslint-plugin-unused-imports": "^2.0.0",
     "jest": "^28.1.1",
     "ts-jest": "^28.0.8",

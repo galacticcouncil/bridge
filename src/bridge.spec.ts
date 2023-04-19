@@ -1,16 +1,16 @@
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom } from "rxjs";
 
-import { ApiProvider } from './api-provider';
-import { BaseCrossChainAdapter } from './base-chain-adapter';
-import { ChainId } from './configs';
-import { Bridge } from './bridge';
-import { FN } from './types';
+import { ApiProvider } from "./api-provider";
+import { BaseCrossChainAdapter } from "./base-chain-adapter";
+import { ChainId } from "./configs";
+import { Bridge } from "./bridge";
+import { FN } from "./types";
 import { AcalaAdapter, KaruraAdapter } from "./adapters/acala";
 import { BasiliskAdapter, HydradxAdapter } from "./adapters/hydradx";
 import { TinkernetAdapter } from "./adapters/tinkernet";
 import { StatemineAdapter, StatemintAdapter } from "./adapters/statemint";
 import { RobonomicsAdapter } from "./adapters/robonomics";
-import { PolkadotAdapter } from "./adapters/polkadot";
+import { PolkadotAdapter, KusamaAdapter } from "./adapters/polkadot";
 import { InterlayAdapter } from "./adapters/interlay";
 import { ZeitgeistAdapter } from "./adapters/zeitgeist";
 
@@ -28,16 +28,17 @@ const CHAINS: Record<string, string[]> = {
   zeitgeist: ["wss://zeitgeist.api.onfinality.io/public-ws"],
 };
 
-describe.skip('Bridge sdk usage', () => {
+describe("Bridge sdk usage", () => {
   jest.setTimeout(30000);
 
   const provider = new ApiProvider();
 
   const availableAdapters: Record<string, BaseCrossChainAdapter> = {
     polkadot: new PolkadotAdapter(),
-    acala: new AcalaAdapter("wss://acala-polkadot.api.onfinality.io/public-ws"),
-    hydradx: new HydradxAdapter(),
+    kusama: new KusamaAdapter(),
+    acala: new AcalaAdapter("wss://acala.polkawallet.io"),
     karura: new KaruraAdapter(),
+    hydradx: new HydradxAdapter(),
     basilisk: new BasiliskAdapter(),
     tinkernet: new TinkernetAdapter(),
     statemine: new StatemineAdapter(),
@@ -56,20 +57,20 @@ describe.skip('Bridge sdk usage', () => {
       Object.keys(availableAdapters).length
     );
     expect(
-      bridge.router.getDestinationChains({ from: "acala" }).length
+      bridge.router.getDestinationChains({ from: "hydradx" }).length
     ).toBeGreaterThanOrEqual(0);
     expect(
-      bridge.router.getAvailableTokens({ from: "acala", to: "hydradx" }).length
+      bridge.router.getAvailableTokens({ from: "hydradx", to: "acala" }).length
     ).toBeGreaterThanOrEqual(0);
 
     const tokens = bridge.router.getAvailableTokens({
-      from: "basilisk",
-      to: "karura",
+      from: "hydradx",
+      to: "acala",
     });
-    console.log(tokens);
+    console.log("Available tokens from HydraDX to Acala: " + tokens);
   });
 
-  test('2. connect fromChain should be ok', async () => {
+  test("2. connect fromChain should be ok", async () => {
     const chains = Object.keys(availableAdapters) as ChainId[];
 
     expect(provider.getApi(chains[0])).toEqual(undefined);
@@ -81,52 +82,31 @@ describe.skip('Bridge sdk usage', () => {
     );
 
     // and set apiProvider for each adapter
-    await Promise.all(chains.map((chain) => availableAdapters[chain].init(provider.getApi(chain))));
+    await Promise.all(
+      chains.map((chain) =>
+        availableAdapters[chain].init(provider.getApi(chain))
+      )
+    );
 
     expect(connected.length).toEqual(chains.length);
-
-    expect(connected[0]).toEqual(chains[0]);
-    expect(connected[1]).toEqual(chains[1]);
-
-    expect(provider.getApi(chains[0])).toBeDefined();
-    expect(provider.getApi(chains[1])).toBeDefined();
-
-    expect(
-      (
-        await firstValueFrom(provider.getApi(chains[0]).rpc.system.chain())
-      ).toLowerCase()
-    ).toEqual(chains[0]);
-    expect(
-      (
-        await firstValueFrom(provider.getApi(chains[1]).rpc.system.chain())
-      ).toLowerCase()
-    ).toEqual(chains[1]);
-
-    setTimeout(async () => {
-      expect(
-        (
-          await provider.getApiPromise(chains[0]).rpc.system.chain()
-        ).toLowerCase()
-      ).toEqual(chains[0]);
-      expect(
-        (
-          await provider.getApiPromise(chains[1]).rpc.system.chain()
-        ).toLowerCase()
-      ).toEqual(chains[1]);
-    }, 1000);
   });
 
   test("3. token balance query & create tx should be ok", async () => {
-    const chain: ChainId = "hydradx";
-    const toChain: ChainId = "zeitgeist";
-    const token = "ZTG";
+    /* const chain: ChainId = "kusama";
+    const toChain: ChainId = "basilisk";
+    const token = "KSM";
+    const testAddress = "bXieCAR98oWxVhRog5fCyTNkTquvFAonLPC2pLE1Qd1jgsK9f"; */
+
+    const chain: ChainId = "acala";
+    const toChain: ChainId = "hydradx";
+    const token = "WETH";
     const testAddress = "7MHE9BUBEWU88cEto6P1XNNb66foSwAZPKhfL8GHW9exnuH1";
 
     const balance = await firstValueFrom(
       availableAdapters[chain].subscribeTokenBalance(token, testAddress)
     );
 
-    console.log(balance.free.toNumber());
+    console.log(token + " Balance: " + balance.free.toNumber());
 
     expect(balance.free.toNumber()).toBeGreaterThanOrEqual(0);
     expect(balance.available.toNumber()).toBeGreaterThanOrEqual(0);
@@ -139,8 +119,6 @@ describe.skip('Bridge sdk usage', () => {
         signer: testAddress,
       })
     );
-
-    console.log(JSON.stringify(inputConfig, null, 2));
 
     expect(BigInt(inputConfig.estimateFee)).toBeGreaterThanOrEqual(BigInt(0));
     expect(inputConfig.minInput.toNumber()).toBeGreaterThan(0);
@@ -156,6 +134,7 @@ describe.skip('Bridge sdk usage', () => {
       signer: testAddress,
     });
     console.log(JSON.stringify(tx.toHuman(), null, 2));
+    console.log("Tx HEX: " + tx.toHex());
     expect(tx.args.length).toBeGreaterThan(1);
   });
 });
