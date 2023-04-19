@@ -1,4 +1,4 @@
-import { WalletConfigs } from "@acala-network/sdk/wallet";
+import { WalletConfigs, Wallet } from "@acala-network/sdk/wallet";
 import { AnyApi, FixedPointNumber } from "@acala-network/sdk-core";
 import { EvmRpcProvider } from "@acala-network/eth-providers";
 import {
@@ -25,7 +25,6 @@ import {
   TransferParams,
 } from "../types";
 import { isChainEqual } from "../utils/is-chain-equal";
-import { AcalaWallet } from "../wallet/acala";
 
 const ACALA_DEST_WEIGHT = "5000000000";
 
@@ -193,7 +192,7 @@ const STATEMINE_ASSET_INDEXES: Record<string, number> = {
 };
 
 class BaseAcalaAdapter extends BaseCrossChainAdapter {
-  private wallet?: AcalaWallet;
+  private wallet?: Wallet;
   protected evmEndpoint?: string | string[];
 
   public async init(api: AnyApi) {
@@ -205,7 +204,7 @@ class BaseAcalaAdapter extends BaseCrossChainAdapter {
 
     await api.isReady;
 
-    this.wallet = new AcalaWallet(api, {
+    this.wallet = new Wallet(api, {
       evmProvider: this.evmEndpoint
         ? new EvmRpcProvider(this.evmEndpoint)
         : null,
