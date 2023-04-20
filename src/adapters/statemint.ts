@@ -315,23 +315,30 @@ class BaseStatemintAdapter extends BaseCrossChainAdapter {
       );
     } else {
       const dst = {
-        parents: 0,
+        parents: 1,
         interior: { X1: { Parachain: toChain.paraChainId } },
       };
       const acc = {
         parents: 0,
-        interior: {
-          X1: { AccountId32: { id: accountId } },
-        },
+        interior: { X1: { AccountId32: { id: accountId } } },
       };
       const ass = [
         {
-          id: { Concrete: { parents: 0, interior: "Here" } },
-          fun: { Fungible: amount.toChainData() },
+          id: {
+            Concrete: {
+              parents: 0,
+              interior: {
+                X2: [{ PalletInstance: 50 }, { GeneralIndex: assetId }],
+              },
+            },
+          },
+          fun: {
+            Fungible: amount.toChainData(),
+          },
         },
       ];
 
-      return this.api?.tx.xcmPallet.limitedReserveTransferAssets(
+      return this.api?.tx.polkadotXcm.limitedReserveTransferAssets(
         { V3: dst },
         { V3: acc },
         { V3: ass },
