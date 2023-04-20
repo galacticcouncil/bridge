@@ -1,6 +1,3 @@
-import { EvmRpcProvider } from "@acala-network/eth-providers";
-import { Wallet } from "@acala-network/sdk";
-
 import { FixedPointNumber } from "@acala-network/sdk-core";
 import { firstValueFrom } from "rxjs";
 
