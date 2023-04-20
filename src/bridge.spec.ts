@@ -28,6 +28,11 @@ const CHAINS: Record<string, string[]> = {
   zeitgeist: ["wss://zeitgeist.api.onfinality.io/public-ws"],
 };
 
+const FROM_CHAIN: ChainId = "hydradx";
+const TO_CHAIN: ChainId = "statemint";
+const TOKEN: string = "USDT";
+const ADDRESS: string = "7MHE9BUBEWU88cEto6P1XNNb66foSwAZPKhfL8GHW9exnuH1";
+
 describe("Bridge sdk usage", () => {
   jest.setTimeout(30000);
 
@@ -57,21 +62,26 @@ describe("Bridge sdk usage", () => {
       Object.keys(availableAdapters).length
     );
     expect(
-      bridge.router.getDestinationChains({ from: "hydradx" }).length
+      bridge.router.getDestinationChains({ from: FROM_CHAIN }).length
     ).toBeGreaterThanOrEqual(0);
     expect(
-      bridge.router.getAvailableTokens({ from: "hydradx", to: "acala" }).length
+      bridge.router.getAvailableTokens({ from: FROM_CHAIN, to: TO_CHAIN })
+        .length
     ).toBeGreaterThanOrEqual(0);
 
     const tokens = bridge.router.getAvailableTokens({
-      from: "hydradx",
-      to: "acala",
+      from: FROM_CHAIN,
+      to: TO_CHAIN,
     });
-    console.log("Available tokens from HydraDX to Acala: " + tokens);
+    console.log(
+      `Available tokens from ${FROM_CHAIN} to ${TO_CHAIN}: ${tokens}`
+    );
   });
 
   test("2. connect fromChain should be ok", async () => {
-    const chains = Object.keys(availableAdapters) as ChainId[];
+    const chains = Object.keys(availableAdapters).filter(
+      (k) => k === FROM_CHAIN || k === TO_CHAIN
+    ) as ChainId[];
 
     expect(provider.getApi(chains[0])).toEqual(undefined);
     expect(provider.getApi(chains[1])).toEqual(undefined);
@@ -83,40 +93,30 @@ describe("Bridge sdk usage", () => {
 
     // and set apiProvider for each adapter
     await Promise.all(
-      chains.map((chain) =>
-        availableAdapters[chain].init(provider.getApi(chain))
-      )
+      chains
+        .filter((k) => k === FROM_CHAIN || k === TO_CHAIN)
+        .map((chain) => availableAdapters[chain].init(provider.getApi(chain)))
     );
 
     expect(connected.length).toEqual(chains.length);
   });
 
   test("3. token balance query & create tx should be ok", async () => {
-    /* const chain: ChainId = "kusama";
-    const toChain: ChainId = "basilisk";
-    const token = "KSM";
-    const testAddress = "bXieCAR98oWxVhRog5fCyTNkTquvFAonLPC2pLE1Qd1jgsK9f"; */
-
-    const chain: ChainId = "acala";
-    const toChain: ChainId = "hydradx";
-    const token = "WETH";
-    const testAddress = "7MHE9BUBEWU88cEto6P1XNNb66foSwAZPKhfL8GHW9exnuH1";
-
     const balance = await firstValueFrom(
-      availableAdapters[chain].subscribeTokenBalance(token, testAddress)
+      availableAdapters[FROM_CHAIN].subscribeTokenBalance(TOKEN, ADDRESS)
     );
 
-    console.log(token + " Balance: " + balance.free.toNumber());
+    console.log(TOKEN + " Balance: " + balance.free.toNumber());
 
     expect(balance.free.toNumber()).toBeGreaterThanOrEqual(0);
     expect(balance.available.toNumber()).toBeGreaterThanOrEqual(0);
 
     const inputConfig = await firstValueFrom(
-      availableAdapters[chain].subscribeInputConfig({
-        to: toChain,
-        token,
-        address: testAddress,
-        signer: testAddress,
+      availableAdapters[FROM_CHAIN].subscribeInputConfig({
+        to: TO_CHAIN,
+        token: TOKEN,
+        address: ADDRESS,
+        signer: ADDRESS,
       })
     );
 
@@ -126,12 +126,12 @@ describe("Bridge sdk usage", () => {
       balance.available.toNumber()
     );
 
-    const tx = availableAdapters[chain].createTx({
-      to: toChain,
-      token,
-      amount: FN.fromInner("10000000000", 10),
-      address: testAddress,
-      signer: testAddress,
+    const tx = availableAdapters[FROM_CHAIN].createTx({
+      to: TO_CHAIN,
+      token: TOKEN,
+      amount: FN.fromInner("1000000000000", 12),
+      address: ADDRESS,
+      signer: ADDRESS,
     });
     console.log(JSON.stringify(tx.toHuman(), null, 2));
     console.log("Tx HEX: " + tx.toHex());
