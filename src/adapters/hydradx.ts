@@ -376,11 +376,11 @@ class BaseHydradxAdapter extends BaseCrossChainAdapter {
       };
     }
 
-    // to statemine
+    // to statemine || statemint
     if (
-      isChainEqual(toChain, "statemine") &&
-      tokenId &&
-      STATEMINE_ASSET_INDEXES[tokenId]
+      (isChainEqual(toChain, "statemine") ||
+        isChainEqual(toChain, "statemint")) &&
+      STATEMINE_ASSET_INDEXES[token]
     ) {
       const ass = {
         id: {
@@ -390,7 +390,7 @@ class BaseHydradxAdapter extends BaseCrossChainAdapter {
               X3: [
                 { Parachain: 1000 },
                 { PalletInstance: 50 },
-                { GeneralIndex: STATEMINE_ASSET_INDEXES[tokenId] },
+                { GeneralIndex: STATEMINE_ASSET_INDEXES[token] },
               ],
             },
           },
@@ -401,7 +401,7 @@ class BaseHydradxAdapter extends BaseCrossChainAdapter {
       return this.api?.tx.xTokens.transferMultiasset(
         { V1: ass },
         { V1: dst },
-        "Unlimited"
+        this.getDestWeight(token, to)?.toString() || "undefined"
       );
     }
 
