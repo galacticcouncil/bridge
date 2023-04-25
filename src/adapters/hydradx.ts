@@ -82,6 +82,14 @@ export const hydradxRoutersConfig: Omit<RouteConfigs, "from">[] = [
       weightLimit: DEST_WEIGHT,
     },
   },
+  {
+    to: "astar",
+    token: "ASTR",
+    xcm: {
+      fee: { token: "ASTR", amount: "4041465440000000" },
+      weightLimit: DEST_WEIGHT,
+    },
+  },
 ];
 
 export const hydradxTokensConfig: Record<string, BasicToken> = {
@@ -90,9 +98,15 @@ export const hydradxTokensConfig: Record<string, BasicToken> = {
   WBTC: { name: "WBTC", symbol: "WBTC", decimals: 8, ed: "44" },
   IBTC: { name: "IBTC", symbol: "IBTC", decimals: 8, ed: "36" },
   DOT: { name: "DOT", symbol: "DOT", decimals: 10, ed: "17540000" },
-  DAI: { name: "DAI", symbol: "DAI", decimals: 18, ed: "10000000000" },
+  DAI: { name: "DAI", symbol: "DAI", decimals: 18, ed: "10000000000000000" },
   USDT: { name: "USDT", symbol: "USDT", decimals: 6, ed: "10000" },
   ZTG: { name: "ZTG", symbol: "ZTG", decimals: 10, ed: "1204151916" },
+  ASTR: {
+    name: "ASTR",
+    symbol: "ASTR",
+    decimals: 18,
+    ed: "147058823529412000",
+  },
 };
 
 const HYDRADX_SUPPORTED_TOKENS: Record<string, number> = {
@@ -104,6 +118,7 @@ const HYDRADX_SUPPORTED_TOKENS: Record<string, number> = {
   USDT: 10,
   IBTC: 11,
   ZTG: 12,
+  ASTR: 9,
 };
 
 export const basiliskRoutersConfig: Omit<RouteConfigs, "from">[] = [

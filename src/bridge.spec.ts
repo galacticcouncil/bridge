@@ -13,6 +13,7 @@ import { RobonomicsAdapter } from "./adapters/robonomics";
 import { PolkadotAdapter, KusamaAdapter } from "./adapters/polkadot";
 import { InterlayAdapter } from "./adapters/interlay";
 import { ZeitgeistAdapter } from "./adapters/zeitgeist";
+import { AstarAdapter } from "./adapters/astar";
 
 const CHAINS: Record<string, string[]> = {
   polkadot: ["wss://rpc.polkadot.io"],
@@ -26,11 +27,12 @@ const CHAINS: Record<string, string[]> = {
   statemint: ["wss://statemint.api.onfinality.io/public-ws"],
   interlay: ["wss://interlay.api.onfinality.io/public-ws"],
   zeitgeist: ["wss://zeitgeist.api.onfinality.io/public-ws"],
+  astar: ["wss://astar.api.onfinality.io/public-ws"],
 };
 
-const FROM_CHAIN: ChainId = "hydradx";
-const TO_CHAIN: ChainId = "statemint";
-const TOKEN: string = "USDT";
+const FROM_CHAIN: ChainId = "astar";
+const TO_CHAIN: ChainId = "hydradx";
+const TOKEN: string = "ASTR";
 const ADDRESS: string = "7MHE9BUBEWU88cEto6P1XNNb66foSwAZPKhfL8GHW9exnuH1";
 
 describe("Bridge sdk usage", () => {
@@ -51,6 +53,7 @@ describe("Bridge sdk usage", () => {
     robonomics: new RobonomicsAdapter(),
     interlay: new InterlayAdapter(),
     zeitgeist: new ZeitgeistAdapter(),
+    astar: new AstarAdapter()
   };
 
   const bridge = new Bridge({
