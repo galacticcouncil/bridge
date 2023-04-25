@@ -27,26 +27,10 @@ export const astarRoutersConfig: Omit<RouteConfigs, "from">[] = [
     },
   },
   {
-    to: "acala",
-    token: "ACA",
+    to: "hydradx",
+    token: "ASTR",
     xcm: {
-      fee: { token: "ACA", amount: "9269600000" },
-      weightLimit: "Unlimited",
-    },
-  },
-  {
-    to: "acala",
-    token: "AUSD",
-    xcm: {
-      fee: { token: "AUSD", amount: "2931921869" },
-      weightLimit: "Unlimited",
-    },
-  },
-  {
-    to: "acala",
-    token: "LDOT",
-    xcm: {
-      fee: { token: "LDOT", amount: "31449750" },
+      fee: { token: "ASTR", amount: "44306118000000000" },
       weightLimit: "Unlimited",
     },
   },
