@@ -19,6 +19,7 @@
     "clean": "rm -rf build",
     "build": "tsc && cp package.json build",
     "test": "jest",
+    "test:bridge": "yarn test bridge.spec.ts",
     "lint": "polkadot-dev-run-lint",
     "build:docs": "ts-node ./scripts/generate-bridge-document.ts",
     "build:release": "polkadot-ci-ghact-build"
