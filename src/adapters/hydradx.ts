@@ -239,7 +239,7 @@ export const hydradxRoutersConfig = createRouteConfigs("hydradx", [
     to: "statemint",
     token: "USDC",
     xcm: {
-      fee: { token: "USDC", amount: "700000" },
+      fee: {token: "DOT", amount: "1469417452"}, // TODO test fee
     },
   },
   {
@@ -523,16 +523,59 @@ class BaseHydradxAdapter extends BaseCrossChainAdapter {
       const accountId = this.api?.createType("AccountId32", address).toHex();
 
       if (!token) throw new TokenNotFound(token);
-      return this.api.tx.xTokens.transferMultiasset(
-        createXTokensAssetsParam(
-          this.api,
-          toChain.paraChainId,
-          tokenData.toRaw(),
-          amount.toChainData()
-        ),
-        createXTokensDestParam(this.api, toChain.paraChainId, accountId) as any,
-        "Unlimited"
-      );
+
+      const {xcm: {fee}} = hydradxRoutersConfig.find(({to, token}) => to === params.to && token === params.token);
+      if (fee.token === 'DOT') {
+        return this.api.tx.xTokens.transferMultiassets(
+            { V3:
+                  [
+                    {
+                      fun: {
+                        Fungible: amount.toChainData(),
+                      },
+                      id: {
+                        Concrete: {
+                          parents: 1,
+                          interior: {
+                            X3: [
+                              {Parachain: toChain.paraChainId},
+                              {PalletInstance: 50},
+                              {GeneralIndex: tokenData.toRaw()},
+                            ],
+                          },
+                        },
+                      },
+                    },{
+                    fun: {
+                      Fungible: fee.amount,
+                    },
+                    id: {
+                      Concrete: {
+                        parents: 1,
+                        interior: {
+                          Here: {},
+                        },
+                      },
+                    },
+                  }
+                  ],
+            },
+            1,
+            createXTokensDestParam(this.api, toChain.paraChainId, accountId) as any,
+            "Unlimited"
+        );
+      } else {
+        return this.api.tx.xTokens.transferMultiasset(
+            createXTokensAssetsParam(
+                this.api,
+                toChain.paraChainId,
+                tokenData.toRaw(),
+                amount.toChainData()
+            ),
+            createXTokensDestParam(this.api, toChain.paraChainId, accountId) as any,
+            "Unlimited"
+        );
+      }
     }
 
     return this.createXTokensTx(params);
