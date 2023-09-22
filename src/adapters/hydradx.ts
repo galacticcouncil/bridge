@@ -531,6 +531,19 @@ class BaseHydradxAdapter extends BaseCrossChainAdapter {
                   [
                     {
                       fun: {
+                        Fungible: fee.amount,
+                      },
+                      id: {
+                        Concrete: {
+                          parents: 1,
+                          interior: {
+                            Here: {},
+                          },
+                        },
+                      },
+                    },
+                    {
+                      fun: {
                         Fungible: amount.toChainData(),
                       },
                       id: {
@@ -545,22 +558,10 @@ class BaseHydradxAdapter extends BaseCrossChainAdapter {
                           },
                         },
                       },
-                    },{
-                    fun: {
-                      Fungible: fee.amount,
-                    },
-                    id: {
-                      Concrete: {
-                        parents: 1,
-                        interior: {
-                          Here: {},
-                        },
-                      },
-                    },
-                  }
+                    }
                   ],
             },
-            1,
+            0,
             createXTokensDestParam(this.api, toChain.paraChainId, accountId) as any,
             "Unlimited"
         );
