@@ -35,8 +35,8 @@ const CHAINS: Record<string, string[]> = {
   centrifuge: ["wss://fullnode.centrifuge.io"]
 };
 
-const FROM_CHAIN: ChainId = "statemint";
-const TO_CHAIN: ChainId = "hydradx";
+const FROM_CHAIN: ChainId = "hydradx";
+const TO_CHAIN: ChainId = "statemint";
 const TOKEN: string = "USDC";
 const ADDRESS: string = "13Fet2MzBBUbJ2oREa7JJrswGeJPY4p7cY3Z2MC9oash8kzN";
 
