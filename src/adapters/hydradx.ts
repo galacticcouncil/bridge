@@ -239,7 +239,7 @@ export const hydradxRoutersConfig = createRouteConfigs("hydradx", [
     to: "statemint",
     token: "USDC",
     xcm: {
-      fee: {token: "DOT", amount: "1469417452"}, // TODO test fee
+      fee: {token: "USDT", amount: "1000000"}, // TODO test fee
     },
   },
   {
@@ -525,42 +525,28 @@ class BaseHydradxAdapter extends BaseCrossChainAdapter {
       if (!token) throw new TokenNotFound(token);
 
       const {xcm: {fee}} = hydradxRoutersConfig.find(({to, token}) => to === params.to && token === params.token);
-      if (fee.token === 'DOT') {
-        return this.api.tx.xTokens.transferMultiassets(
-            { V3:
-                  [
-                    {
-                      fun: {
-                        Fungible: amount.toChainData(),
-                      },
-                      id: {
-                        Concrete: {
-                          parents: 1,
-                          interior: {
-                            X3: [
-                              {Parachain: toChain.paraChainId},
-                              {PalletInstance: 50},
-                              {GeneralIndex: tokenData.toRaw()},
-                            ],
-                          },
-                        },
-                      },
-                    },{
-                    fun: {
-                      Fungible: fee.amount,
-                    },
-                    id: {
-                      Concrete: {
-                        parents: 1,
-                        interior: {
-                          Here: {},
-                        },
-                      },
-                    },
-                  }
-                  ],
+      if (fee.token !== tokenData.symbol) {
+        const feeAsset = fee.token === 'DOT' ? {
+          fun: {
+            Fungible: fee.amount,
+          },
+          id: {
+            Concrete: {
+              parents: 1,
+              interior: {
+                Here: {},
+              },
             },
-            1,
+          },
+        } : createStatemintAsset(statemintTokensConfig[fee.token].toRaw(), fee.amount);
+        return this.api.tx.xTokens.transferMultiassets(
+            {
+              V3: [
+                    feeAsset,
+                    createStatemintAsset(tokenData.toRaw(), amount.toChainData()),
+              ]
+            },
+            0,
             createXTokensDestParam(this.api, toChain.paraChainId, accountId) as any,
             "Unlimited"
         );
@@ -579,6 +565,26 @@ class BaseHydradxAdapter extends BaseCrossChainAdapter {
     }
 
     return this.createXTokensTx(params);
+  }
+}
+
+function createStatemintAsset(index, amount, Parachain = '1000') {
+  return {
+    fun: {
+      Fungible: amount,
+    },
+    id: {
+      Concrete: {
+        parents: 1,
+        interior: {
+          X3: [
+            {Parachain},
+            {PalletInstance: 50},
+            {GeneralIndex: index},
+          ],
+        },
+      },
+    },
   }
 }
 
