@@ -35,10 +35,10 @@ const CHAINS: Record<string, string[]> = {
   centrifuge: ["wss://fullnode.centrifuge.io"]
 };
 
-const FROM_CHAIN: ChainId = "hydradx";
-const TO_CHAIN: ChainId = "statemint";
+const FROM_CHAIN: ChainId = "statemint";
+const TO_CHAIN: ChainId = "hydradx";
 const TOKEN: string = "USDC";
-const ADDRESS: string = "13Fet2MzBBUbJ2oREa7JJrswGeJPY4p7cY3Z2MC9oash8kzN";
+const ADDRESS: string = "7MHE9BUBEWU88cEto6P1XNNb66foSwAZPKhfL8GHW9exnuH1";
 
 describe("Bridge sdk usage", () => {
   jest.setTimeout(30000);

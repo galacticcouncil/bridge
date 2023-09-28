@@ -235,13 +235,13 @@ export const hydradxRoutersConfig = createRouteConfigs("hydradx", [
       fee: { token: "USDT", amount: "700000" },
     },
   },
-  {
-    to: "statemint",
-    token: "USDC",
-    xcm: {
-      fee: {token: "USDT", amount: "1000000"}, // TODO test fee
-    },
-  },
+  // {
+  //   to: "statemint",
+  //   token: "USDC",
+  //   xcm: {
+  //     fee: { token: "USDT", amount: "1000000" }, // TODO test fee
+  //   },
+  // },
   {
     to: "zeitgeist",
     token: "ZTG",
@@ -524,67 +524,19 @@ class BaseHydradxAdapter extends BaseCrossChainAdapter {
 
       if (!token) throw new TokenNotFound(token);
 
-      const {xcm: {fee}} = hydradxRoutersConfig.find(({to, token}) => to === params.to && token === params.token);
-      if (fee.token !== tokenData.symbol) {
-        const feeAsset = fee.token === 'DOT' ? {
-          fun: {
-            Fungible: fee.amount,
-          },
-          id: {
-            Concrete: {
-              parents: 1,
-              interior: {
-                Here: {},
-              },
-            },
-          },
-        } : createStatemintAsset(statemintTokensConfig[fee.token].toRaw(), fee.amount);
-        return this.api.tx.xTokens.transferMultiassets(
-            {
-              V3: [
-                    feeAsset,
-                    createStatemintAsset(tokenData.toRaw(), amount.toChainData()),
-              ]
-            },
-            0,
-            createXTokensDestParam(this.api, toChain.paraChainId, accountId) as any,
-            "Unlimited"
-        );
-      } else {
-        return this.api.tx.xTokens.transferMultiasset(
-            createXTokensAssetsParam(
-                this.api,
-                toChain.paraChainId,
-                tokenData.toRaw(),
-                amount.toChainData()
-            ),
-            createXTokensDestParam(this.api, toChain.paraChainId, accountId) as any,
-            "Unlimited"
-        );
-      }
+      return this.api.tx.xTokens.transferMultiasset(
+        createXTokensAssetsParam(
+          this.api,
+          toChain.paraChainId,
+          tokenData.toRaw(),
+          amount.toChainData()
+        ),
+        createXTokensDestParam(this.api, toChain.paraChainId, accountId) as any,
+        "Unlimited"
+      );
     }
 
     return this.createXTokensTx(params);
-  }
-}
-
-function createStatemintAsset(index, amount, Parachain = '1000') {
-  return {
-    fun: {
-      Fungible: amount,
-    },
-    id: {
-      Concrete: {
-        parents: 1,
-        interior: {
-          X3: [
-            {Parachain},
-            {PalletInstance: 50},
-            {GeneralIndex: index},
-          ],
-        },
-      },
-    },
   }
 }
 
