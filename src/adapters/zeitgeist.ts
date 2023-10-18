@@ -10,10 +10,8 @@ import { BalanceAdapter, BalanceAdapterConfigs } from "../balance-adapter";
 import { BaseCrossChainAdapter } from "../base-chain-adapter";
 import { ChainId, chains } from "../configs";
 import { ApiNotFound, TokenNotFound } from "../errors";
-import { BalanceData, BasicToken, TransferParams } from "../types";
+import { BalanceData, ExtendedToken, TransferParams } from "../types";
 import { createRouteConfigs } from "../utils";
-
-const DEST_WEIGHT = "5000000000";
 
 export const zeitgeistRouteConfigs = createRouteConfigs("zeitgeist", [
   {
@@ -21,13 +19,18 @@ export const zeitgeistRouteConfigs = createRouteConfigs("zeitgeist", [
     token: "ZTG",
     xcm: {
       fee: { token: "ZTG", amount: "225000000" },
-      weightLimit: DEST_WEIGHT,
     },
   },
 ]);
 
-const zeitgeistTokensConfig: Record<string, BasicToken> = {
-  ZTG: { name: "ZTG", symbol: "ZTG", decimals: 10, ed: "50000000" },
+const zeitgeistTokensConfig: Record<string, ExtendedToken> = {
+  ZTG: {
+    name: "ZTG",
+    symbol: "ZTG",
+    decimals: 10,
+    ed: "50000000",
+    toRaw: () => "ZTG",
+  },
 };
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -146,28 +149,24 @@ class ZeitgeistBaseAdapter extends BaseCrossChainAdapter {
     if (this.api === undefined) {
       throw new ApiNotFound(this.chain.id);
     }
+    return this.createXTokensTx(params);
 
-    const { address, amount, to } = params;
-    const toChain = chains[to];
-
-    const accountId = this.api?.createType("AccountId32", address).toHex();
-
-    return this.api.tx.xTokens.transfer(
-      "Ztg",
-      amount.toChainData(),
-      {
-        V1: {
-          parents: 1,
-          interior: {
-            X2: [
-              { Parachain: toChain.paraChainId },
-              { AccountId32: { id: accountId, network: "Any" } },
-            ],
-          },
-        },
-      },
-      "Unlimited"
-    );
+    // return this.api.tx.xTokens.transfer(
+    //   "Ztg",
+    //   amount.toChainData(),
+    //   {
+    //     V1: {
+    //       parents: 1,
+    //       interior: {
+    //         X2: [
+    //           { Parachain: toChain.paraChainId },
+    //           { AccountId32: { id: accountId, network: "Any" } },
+    //         ],
+    //       },
+    //     },
+    //   },
+    //   "Unlimited"
+    // );
   }
 }
 
