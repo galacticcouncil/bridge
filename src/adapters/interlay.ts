@@ -29,6 +29,13 @@ export const interlayRouteConfigs = createRouteConfigs("interlay", [
   },
   {
     to: "hydradx",
+    token: "INTR",
+    xcm: {
+      fee: { token: "INTR", amount: "1363890000" },
+    },
+  },
+  {
+    to: "hydradx",
     token: "IBTC",
     xcm: { fee: { token: "IBTC", amount: "7" } },
   },

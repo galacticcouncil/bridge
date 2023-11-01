@@ -229,6 +229,11 @@ export const hydradxRoutersConfig = createRouteConfigs("hydradx", [
     xcm: { fee: { token: "IBTC", amount: "62" } },
   },
   {
+    to: "interlay",
+    token: "INTR",
+    xcm: { fee: { token: "INTR", amount: "19213457" } },
+  },
+  {
     to: "statemint",
     token: "USDT",
     xcm: {
@@ -301,6 +306,13 @@ export const hydradxTokensConfig: Record<string, ExtendedToken> = {
     decimals: 8,
     ed: "36",
     toRaw: () => 11,
+  },
+  INTR: {
+    name: "INTR",
+    symbol: "INTR",
+    decimals: 10,
+    ed: "6164274209",
+    toRaw: () => 17,
   },
   DOT: {
     name: "DOT",
