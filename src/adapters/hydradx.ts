@@ -282,6 +282,13 @@ export const hydradxRoutersConfig = createRouteConfigs("hydradx", [
       fee: { token: "vDOT", amount: "703" },
     },
   },
+  {
+    to: "subsocial",
+    token: "SUB",
+    xcm: {
+      fee: { token: "SUB", amount: "0" },
+    },
+  },
 ]);
 
 export const hydradxTokensConfig: Record<string, ExtendedToken> = {
@@ -376,6 +383,13 @@ export const hydradxTokensConfig: Record<string, ExtendedToken> = {
     decimals: 10,
     ed: "15576324",
     toRaw: () => 15,
+  },
+  SUB: {
+    name: "SUB",
+    symbol: "SUB",
+    decimals: 10,
+    ed: "20000000",
+    toRaw: () => 24,
   },
 };
 

@@ -16,6 +16,7 @@ import { InterlayAdapter } from "./adapters/interlay";
 import { ZeitgeistAdapter } from "./adapters/zeitgeist";
 import { AstarAdapter } from "./adapters/astar";
 import { CentrifugeAdapter } from "./adapters/centrifuge";
+import { SubsocialAdapter } from "./adapters/subsocial";
 
 const CHAINS: Record<string, string[]> = {
   //polkadot: ["wss://rpc.polkadot.io"],
@@ -40,6 +41,7 @@ const CHAINS: Record<string, string[]> = {
   karura: ["wss://karura-rpc-1.aca-api.network"],
   statemine: ["wss://kusama-asset-hub-rpc.polkadot.io"],
   statemint: ["wss://polkadot-asset-hub-rpc.polkadot.io"],
+  subsocial: ["wss://para.subsocial.network"],
   tinkernet: ["wss://tinkernet-rpc.dwellir.com"],
   robonomics: ["wss://kusama.rpc.robonomics.network/"],
   interlay: ["wss://interlay-rpc.dwellir.com"],
@@ -52,8 +54,8 @@ const CHAINS: Record<string, string[]> = {
 };
 
 const FROM_CHAIN: ChainId = "hydradx";
-const TO_CHAIN: ChainId = "interlay";
-const TOKEN: string = "INTR";
+const TO_CHAIN: ChainId = "subsocial";
+const TOKEN: string = "SUB";
 const ADDRESS: string = "7MHE9BUBEWU88cEto6P1XNNb66foSwAZPKhfL8GHW9exnuH1";
 
 describe("Bridge sdk usage", () => {
@@ -66,7 +68,7 @@ describe("Bridge sdk usage", () => {
     kusama: new KusamaAdapter(),
     acala: new AcalaAdapter(),
     bifrost: new BifrostAdapter(),
-
+    subsocial: new SubsocialAdapter(),
     karura: new KaruraAdapter(),
     hydradx: new HydraDxAdapter(),
     basilisk: new BasiliskAdapter(),
