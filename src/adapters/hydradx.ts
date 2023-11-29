@@ -286,7 +286,7 @@ export const hydradxRoutersConfig = createRouteConfigs("hydradx", [
     to: "subsocial",
     token: "SUB",
     xcm: {
-      fee: { token: "SUB", amount: "0" },
+      fee: { token: "SUB", amount: "640000000" },
     },
   },
 ]);

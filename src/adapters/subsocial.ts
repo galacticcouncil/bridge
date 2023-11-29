@@ -18,7 +18,7 @@ export const subsocialRouteConfigs = createRouteConfigs("subsocial", [
     to: "hydradx",
     token: "SUB",
     xcm: {
-      fee: { token: "SUB", amount: "0" },
+      fee: { token: "SUB", amount: "3525641" },
     },
   },
 ]);
@@ -181,11 +181,11 @@ class BaseSubsocialAdapter extends BaseCrossChainAdapter {
     ];
 
     return this.api?.tx.polkadotXcm.limitedReserveTransferAssets(
-      { V3: dst },
-      { V3: acc },
-      { V3: ass },
+      { V3: dst } as any,
+      { V3: acc } as any,
+      { V3: ass } as any,
       0,
-      this.getDestWeight(token, to)?.toString()
+      this.getDestWeight(token, to)?.toString() as any
     );
   }
 }

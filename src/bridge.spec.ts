@@ -53,8 +53,8 @@ const CHAINS: Record<string, string[]> = {
   bifrost: ["wss://bifrost-polkadot.api.onfinality.io/public-ws"],
 };
 
-const FROM_CHAIN: ChainId = "hydradx";
-const TO_CHAIN: ChainId = "subsocial";
+const FROM_CHAIN: ChainId = "subsocial";
+const TO_CHAIN: ChainId = "hydradx";
 const TOKEN: string = "SUB";
 const ADDRESS: string = "7MHE9BUBEWU88cEto6P1XNNb66foSwAZPKhfL8GHW9exnuH1";
 
