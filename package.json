@@ -1,6 +1,6 @@
 {
   "name": "@galacticcouncil/bridge",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "polkawallet bridge sdk",
   "main": "index.js",
   "types": "index.d.ts",
