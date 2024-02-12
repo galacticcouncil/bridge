@@ -53,9 +53,9 @@ const CHAINS: Record<string, string[]> = {
   bifrost: ["wss://bifrost-polkadot.api.onfinality.io/public-ws"],
 };
 
-const FROM_CHAIN: ChainId = "basilisk";
-const TO_CHAIN: ChainId = "kusama";
-const TOKEN: string = "KSM";
+const FROM_CHAIN: ChainId = "tinkernet";
+const TO_CHAIN: ChainId = "basilisk";
+const TOKEN: string = "TNKR";
 const ADDRESS: string = "7MHE9BUBEWU88cEto6P1XNNb66foSwAZPKhfL8GHW9exnuH1";
 
 describe("Bridge sdk usage", () => {

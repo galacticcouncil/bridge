@@ -11,7 +11,7 @@ import { BaseCrossChainAdapter } from "../base-chain-adapter";
 import { ChainId, chains } from "../configs";
 import { ApiNotFound, TokenNotFound } from "../errors";
 import { BalanceData, BasicToken, TransferParams } from "../types";
-import { createRouteConfigs } from "../utils";
+import { createRouteConfigs, createXTokensDestParam } from "../utils";
 
 const DEST_WEIGHT = "5000000000";
 
@@ -155,17 +155,7 @@ class TinkernetBaseAdapter extends BaseCrossChainAdapter {
     return this.api.tx.xTokens.transfer(
       "0",
       amount.toChainData(),
-      {
-        V1: {
-          parents: 1,
-          interior: {
-            X2: [
-              { Parachain: toChain.paraChainId },
-              { AccountId32: { id: accountId, network: "Any" } },
-            ],
-          },
-        },
-      },
+      createXTokensDestParam(this.api, toChain.paraChainId, accountId) as any,
       "Unlimited"
     );
   }
